@@ -1,7 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:flutter/material.dart';
-import 'package:my_financial_goals/app/generalImports.dart';
+import 'package:money_milestone/screens/widgets/toastAnimation.dart';
+import 'package:money_milestone/utils/colors.dart';
+import 'package:money_milestone/utils/constant.dart';
+import 'package:money_milestone/utils/contextExtensions.dart';
 
 
 Widget MessageContainer({

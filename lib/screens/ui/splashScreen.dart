@@ -1,11 +1,13 @@
 // ignore_for_file: file_names, use_build_context_synchronously
 
-import 'package:my_financial_goals/app/routes.dart';
-import 'package:my_financial_goals/utils/constant.dart';
-import 'package:my_financial_goals/utils/colors.dart';
-import 'package:my_financial_goals/utils/contextExtensions.dart';
+import 'package:money_milestone/app/routes.dart';
+import 'package:money_milestone/data/repository/hiveRepository.dart';
+import 'package:money_milestone/utils/constant.dart';
+import 'package:money_milestone/utils/colors.dart';
+import 'package:money_milestone/utils/contextExtensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:money_milestone/utils/utils.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({final Key? key}) : super(key: key);
@@ -22,7 +24,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     Future.delayed(const Duration(seconds: Constant.splashScreenDuration), () {
-      context.pushNamed(Routes.logInScreen);
+      if (HiveRepository.isUserLoggedIn) {
+        context.pushReplacementNamed(Routes.homeScreen);
+      } else {
+        context.pushReplacementNamed(Routes.logInScreen);
+      }
     });
     super.initState();
   }
@@ -32,6 +38,15 @@ class _SplashScreenState extends State<SplashScreen> {
           body: Container(
         height: context.height,
         width: context.width,
-        color: AppColors.accentColor,
+        decoration: BoxDecoration(gradient: Utils.gradiant()),
+        child: const Center(
+          child: Text(
+            Constant.appName,
+            style: TextStyle(
+                color: AppColors.whiteColors,
+                fontWeight: FontWeight.bold,
+                fontSize: 42),
+          ),
+        ),
       ));
 }

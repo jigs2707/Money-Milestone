@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:my_financial_goals/utils/colors.dart';
+import 'package:money_milestone/utils/colors.dart';
 
 class CustomCircularProgressIndicator extends StatelessWidget {
   const CustomCircularProgressIndicator({

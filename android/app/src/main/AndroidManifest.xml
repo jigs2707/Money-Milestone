@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="My Financial Goal"
+        android:label="Money Milestone"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

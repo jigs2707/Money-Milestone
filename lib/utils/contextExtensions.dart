@@ -5,16 +5,19 @@ extension Appcontext on BuildContext {
 
   get height => MediaQuery.sizeOf(this).height;
 
-  pushNamed(String route) {
-    Navigator.pushNamed(this, route);
+  pushNamed(String route, {Map<String, dynamic>? arguments}) {
+    Navigator.pushNamed(this, route, arguments: arguments);
   }
 
-  pushReplacementNamed(String route,
-      {required Map<String, dynamic> arguments}) {
+  pushReplacementNamed(String route, {Map<String, dynamic>? arguments}) {
     Navigator.pushReplacementNamed(this, route, arguments: arguments);
   }
 
-  pop() {
-    Navigator.pop(this);
+  pop([result]) {
+    Navigator.pop(this, result);
+  }
+
+  pushNamedAndRemoveUntil(String route, {Map<String, dynamic>? arguments}) {
+    Navigator.pushNamedAndRemoveUntil(this, route, (route) => false);
   }
 }

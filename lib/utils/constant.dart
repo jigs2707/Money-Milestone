@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 
 class Constant {
-  static const String appName = "My financial Gooals";
+  static const String appName = "Money Milestone";
 
   ///Duration in Second
   static const int splashScreenDuration = 3;
   static const int messageDisplayDuration = 3;
+  static const int goalPercentageAnimationDuration = 1;
 
+  static const int numberOfShimmerLoadingWidget = 5;
+
+  static const String currencySymbol = "₹";
+
+  static const String dateFormat = "dd/MM/yyyy";
+
+  static const int numberOfDecimalPointAfterAmount = 2;
+
+  static const int showCalenderTillDays = 30000;
 }
-  // to manage snackBar/toast/message
- enum MessageType { success, error, warning }
 
+// to manage snackBar/toast/message
+enum MessageType { success, error, warning }
 
 Map<MessageType, Color> messageColors = {
   MessageType.success: Colors.green,
