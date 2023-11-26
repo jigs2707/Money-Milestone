@@ -116,4 +116,4 @@ To use the Money Milestone:
 
 ## Contact
 
-For questions or support, please contact [mjignesh.g@gmail.com].
+For questions or support, [Send an Email](mailto:mjignesh.g@gmail.com).
