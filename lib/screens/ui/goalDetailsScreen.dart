@@ -11,6 +11,7 @@ import 'package:money_milestone/data/repository/goalRepository.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/data/repository/transactionRepository.dart';
 import 'package:money_milestone/screens/widgets/addOrWithdrawMonetDialogWidget.dart';
+import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
 import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
 import 'package:money_milestone/screens/widgets/customTweenAnimation.dart';
 import 'package:money_milestone/screens/widgets/customerShimmerWidget.dart';
@@ -20,7 +21,6 @@ import 'package:money_milestone/utils/databaseHelper.dart';
 import 'package:money_milestone/utils/languageString.dart';
 import 'package:money_milestone/utils/stringExtensions.dart';
 import 'package:money_milestone/utils/utils.dart';
-
 
 class GoalDetailsScreen extends StatefulWidget {
   GoalModel goalDetails;
@@ -47,7 +47,6 @@ class GoalDetailsScreen extends StatefulWidget {
 
 class _GoalDetailsScreenState extends State<GoalDetailsScreen>
     with SingleTickerProviderStateMixin {
-
   Stream<QuerySnapshot>? _transactionsStream;
 
   double _goalPercentage = 0.0;
@@ -65,8 +64,6 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
     double savedAmount = (widget.goalDetails.goalSavedAmount ?? "0").toDouble();
     double totalAmount = widget.goalDetails.goalAmount.toString().toDouble();
     _goalPercentage = (savedAmount * 100) / totalAmount;
-
-
 
     super.initState();
   }
@@ -652,6 +649,7 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
         centerTitle: false,
         title: const Text(LanguageStrings.lblGoalDetails),
       ),
+      bottomNavigationBar: const BannerAdWidget(),
       body: Stack(
         children: [
           SingleChildScrollView(

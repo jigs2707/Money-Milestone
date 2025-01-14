@@ -31,6 +31,13 @@ xmlns:tools="http://schemas.android.com/tools"
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+
+        <!-- Add your Google AdMob App ID here -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6830153046105033~9999802651" />
+
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

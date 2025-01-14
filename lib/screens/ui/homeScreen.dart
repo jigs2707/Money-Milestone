@@ -17,6 +17,7 @@ import 'package:money_milestone/data/repository/authRepository.dart';
 import 'package:money_milestone/data/repository/goalRepository.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/widgets/addGoalDialog.dart';
+import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
 import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
 import 'package:money_milestone/screens/widgets/customTweenAnimation.dart';
 import 'package:money_milestone/screens/widgets/customerShimmerWidget.dart';
@@ -308,8 +309,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
+      bottomNavigationBar: const BannerAdWidget(),
       appBar: AppBar(
         title: const Text(Constant.appName),
+
         actions: [
           Tooltip(
             message: LanguageStrings.lblLogout,
