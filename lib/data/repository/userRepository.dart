@@ -25,7 +25,7 @@ class UserRepository {
           .collection(DatabaseHelper.usersCollectionName)
           .doc(userId)
           .get();
-      return (userData.data() as Map<String, dynamic>)["name"];
+      return ((userData.data() as Map<String, dynamic>)["name"] ??'');
     } catch (e) {
       throw e.toString();
     }
