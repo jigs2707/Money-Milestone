@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/data/model/transactionModel.dart';
 import 'package:money_milestone/data/repository/transactionRepository.dart';
+import 'package:money_milestone/data/repository/userRepository.dart';
 
 abstract class AddOrWithdrawMoneyState {}
 
@@ -47,7 +48,12 @@ class AddOrWithdrawMoneyCubit extends Cubit<AddOrWithdrawMoneyState> {
       //Update the saved amount in goal document
       await _transactionRepository.addAmountTransaction(
           goalId: goalId, transactionDetails: transactionData, userId: userId);
-//
+
+      //Update streak if it's a deposit
+      if (type != "debit") {
+        await UserRepository().updateStreak(userId: userId);
+      }
+
       emit(AddOrWithdrawMoneySuccess(transactionData: transactionData));
     } catch (e) {
       emit(AddOrWithdrawMoneyFailure(e.toString()));

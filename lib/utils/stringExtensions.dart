@@ -1,5 +1,4 @@
-
-import 'package:money_milestone/utils/constant.dart';
+import 'package:money_milestone/utils/currencyService.dart';
 import 'package:money_milestone/utils/languageString.dart';
 
 extension AppString on String {
@@ -16,9 +15,10 @@ extension AppString on String {
     return this;
   }
 
-  currency() {
-    double amount = double.parse(this);
-    return "${Constant.currencySymbol}${amount.toStringAsFixed(Constant.numberOfDecimalPointAfterAmount)}";
+  String currency() {
+    final amount = double.tryParse(this) ?? 0.0;
+    final symbol = CurrencyService.instance.symbol;
+    return '$symbol${amount.toStringAsFixed(2)}';
   }
 
   toDouble() {

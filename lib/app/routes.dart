@@ -1,20 +1,20 @@
 import 'package:money_milestone/screens/ui/goalDetailsScreen.dart';
 import 'package:money_milestone/screens/ui/homeScreen.dart';
 import 'package:money_milestone/screens/ui/logInScreen.dart';
+import 'package:money_milestone/screens/ui/profileScreen.dart';
 import 'package:money_milestone/screens/ui/signUpScreen.dart';
 import 'package:money_milestone/screens/ui/splashScreen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
-  //route names
+  // Route names
   static const String splashRoute = "/";
   static const String logInScreen = "/logIn";
   static const String signUpScreen = "/signUp";
   static const String homeScreen = "/home";
   static const String goalDetailsScreen = "/goalDetails";
+  static const String profileScreen = "/profile";
 
-  //
   static String currentRoute = splashRoute;
   static String previousRoute = "";
   static String secondPreviousRoute = "";
@@ -39,11 +39,13 @@ class Routes {
       case goalDetailsScreen:
         return GoalDetailsScreen.route(routeSettings);
 
+      case profileScreen:
+        return ProfileScreen.route(routeSettings);
 
       default:
-        return CupertinoPageRoute(
+        return MaterialPageRoute(
           builder: (final _) => const Scaffold(
-            body: Center(child: Text("something went wrong")),
+            body: Center(child: Text("Something went wrong")),
           ),
         );
     }

@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color primaryColor = Color(0xffF2F1F6);
-
+  // Primary background
+  static const Color primaryColor = Color(0xffF0F2FF);
   static const Color secondaryColor = Color(0xffFFFFFF);
+  static const Color surfaceColor = Color(0xffF8F9FF);
 
-  static const Color accentColor = Color(0xff1d9f9e);
+  // Brand accent — electric indigo
+  static const Color accentColor = Color(0xff6C47FF);
+  static const Color accentLightColor = Color(0xff5A35EE);
 
-  static const Color gradiantTopColor = Color(0xff62bbb9);
+  // Gold highlight
+  static const Color goldColor = Color(0xffF5A623);
 
-  static const Color gradiantBottomColor = Color(0xff1d9f9e);
+  // Gradient
+  static const Color gradiantTopColor = Color(0xff6C47FF);
+  static const Color gradiantBottomColor = Color(0xff5A35EE);
 
-  static Color lightGreyColor = Colors.grey.withOpacity(0.5);
-
-// Other colors
-  static const Color redColor = Colors.red;
+  // Semantic
+  static const Color redColor = Color(0xffDC2626);
   static const Color whiteColors = Colors.white;
-  static const Color ratingStarColor = Colors.amber;
-  static const Color blackColors = Colors.black;
-  static const Color greenColor = Colors.green;
+  static const Color ratingStarColor = Color(0xffF5A623);
+  static const Color blackColors = Color(0xff0D0F1E);
+  static const Color greenColor = Color(0xff059669);
 
-  //Shimmer colors
-//light theme colors
-  static Color shimmerBaseColor = Colors.black.withOpacity(0.05);
-  static Color shimmerHighlightColor = Colors.black.withOpacity(0.005);
+  // Grey
+  static Color lightGreyColor = const Color(0xff6B7280);
+
+  // Shimmer
+  static Color shimmerBaseColor = const Color(0xffE8EAFF);
+  static Color shimmerHighlightColor = const Color(0xffD0D4FF);
   static Color shimmerContentColor = Colors.white;
 }

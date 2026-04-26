@@ -5,9 +5,12 @@ class DatabaseHelper {
   static const goalsCollectionName = "goals";
   static const transactionsCollectionName = "transactions";
 
-  //
-  //Collections Keys
+  //--------------------------------- Collections Keys
   static const userNameKey = "name";
+  static const currencyKey = "currency_code";
+  static const currentStreakKey = "current_streak";
+  static const longestStreakKey = "longest_streak";
+  static const lastDepositDateKey = "last_deposit_date";
 
   //
   static const goalAmountKey = "goal_amount";

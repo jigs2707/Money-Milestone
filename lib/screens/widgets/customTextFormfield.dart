@@ -1,9 +1,10 @@
 import 'package:money_milestone/utils/colors.dart';
+import 'package:money_milestone/utils/app_colors_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CustomTextFormField extends StatefulWidget {
-  const CustomTextFormField(
+  CustomTextFormField(
       {super.key,
       required this.controller,
       this.textInputAction,
@@ -118,67 +119,72 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
           decoration: InputDecoration(
             labelText: widget.labelText,
-            labelStyle: widget.labelStyle ?? const TextStyle(fontSize: 12),
+            labelStyle: widget.labelStyle ?? TextStyle(fontSize: 14, color: context.colors.blackColors),
             prefixIcon: widget.prefix,
             suffix: widget.suffix,
             hintText: widget.hintText,
-            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
-              (Set<MaterialState> states) {
-                final Color color = states.contains(MaterialState.error)
+            floatingLabelStyle: WidgetStateTextStyle.resolveWith(
+              (Set<WidgetState> states) {
+                final Color color = states.contains(WidgetState.error)
                     ? Theme.of(context).colorScheme.error
-                    : AppColors.blackColors;
+                    : context.colors.blackColors;
                 return TextStyle(color: color, letterSpacing: 1.3);
               },
             ),
             hintStyle: TextStyle(
               fontSize: 12,
-              color: widget.hintTextColor ?? AppColors.lightGreyColor,
+              color: widget.hintTextColor ?? context.colors.lightGreyColor,
             ),
             isDense: widget.isDense ?? true,
             suffixIcon: widget.isPswd ? togglePassword() : widget.suffixIcon,
             fillColor: widget.backgroundColor ?? Colors.transparent,
-            errorStyle: const TextStyle(fontSize: 10, color: AppColors.redColor),
+            errorStyle: TextStyle(fontSize: 10, color: context.colors.redColor),
             filled: true,
             errorBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: AppColors.redColor),
-              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: context.colors.redColor),
+              borderRadius: BorderRadius.circular(16),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: ((widget.isRoundedBorder ?? false) &&
                         widget.borderColor != null)
                     ? widget.borderColor!
-                    : AppColors.lightGreyColor,
+                    : context.colors.accentColor.withValues(alpha: 0.6),
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
             ),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: ((widget.isRoundedBorder ?? false) &&
                         widget.borderColor != null)
                     ? widget.borderColor!
-                    : AppColors.lightGreyColor,
+                    : context.colors.blackColors.withValues(alpha: 0.12),
+                width: 1,
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: ((widget.isRoundedBorder ?? false) &&
                         widget.borderColor != null)
                     ? widget.borderColor!
-                    : AppColors.lightGreyColor,
+                    : context.colors.accentColor.withValues(alpha: 0.8),
+                width: 1.5,
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
             ),
             border: OutlineInputBorder(
               borderSide: widget.isRoundedBorder == true
                   ? const BorderSide()
                   : BorderSide.none,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
           textAlignVertical: TextAlignVertical.center,
-          style: Theme.of(context).textTheme.titleSmall,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+             color: context.colors.blackColors,
+             fontWeight: FontWeight.w500,
+          ),
           readOnly: widget.isReadOnly ?? false,
           keyboardType: widget.textInputType,
           minLines: widget.minLines,
