@@ -25,16 +25,24 @@ class LogInCubit extends Cubit<LogInState> {
 
   LogInCubit(this._authRepository) : super(LogInInitial());
 
-//To:Do Add the email verification
-
   void doLogIn({required String email, required String password}) async {
     try {
       emit(LogInProgress());
       //
       User user = await _authRepository.logIn(email: email, password: password);
       //
-        emit(LogInSuccess(userData: user));
-
+      // Reload so emailVerified reflects the latest server state.
+      final bool verified = await _authRepository.isEmailVerified();
+      //
+      if (!verified) {
+        // Sign the user back out and tell the UI their email isn't verified.
+        await _authRepository.signOut();
+        emit(LogInFailure(
+            'email-not-verified: Please verify your email before logging in.'));
+        return;
+      }
+      //
+      emit(LogInSuccess(userData: user));
     } catch (e) {
       emit(LogInFailure(e.toString()));
     }

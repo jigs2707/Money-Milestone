@@ -11,6 +11,8 @@ extension AppString on String {
       return LanguageStrings.lblEmailIsAlreadyUsed;
     } else if (contains("firebase_auth/weak-password")) {
       return LanguageStrings.lblPasswordMustBeOfSixCharcter;
+    } else if (contains("email-not-verified")) {
+      return LanguageStrings.lblPleaseVerifyYourMail;
     }
     return this;
   }

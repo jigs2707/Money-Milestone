@@ -24,4 +24,11 @@ class DatabaseHelper {
   static const transactionAmount = "amount";
   static const transactionType = "type";
   static const transactionId="id";
+
+  //--------------------------------- App Config
+  static const appConfigCollectionName = "app_config";
+  static const appConfigDocName = "version";
+  static const latestVersionKey = "latest_version";
+  static const isForceUpdateKey = "is_force_update";
+  static const storeUrlKey = "store_url";
 }

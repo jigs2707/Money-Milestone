@@ -9,6 +9,14 @@ class SignUpInitial extends SignUpState {}
 
 class SignUpProgress extends SignUpState {}
 
+/// Emitted when the account is created and a verification email has been sent.
+/// The UI should navigate to the Email Verification screen.
+class SignUpEmailVerificationSent extends SignUpState {
+  SignUpEmailVerificationSent({required this.userData});
+
+  final User userData;
+}
+
 class SignUpSuccess extends SignUpState {
   SignUpSuccess({required this.userData});
 
@@ -38,7 +46,10 @@ class SignUpCubit extends Cubit<SignUpState> {
       //
       await UserRepository().addUserName(name: name, userId: user.uid);
       //
-      emit(SignUpSuccess(userData: user));
+      // Send email verification — user must confirm before they can log in.
+      await _authRepository.sendEmailVerification();
+      //
+      emit(SignUpEmailVerificationSent(userData: user));
     } catch (e) {
       emit(SignUpFailure(e.toString()));
     }

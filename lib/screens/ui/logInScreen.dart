@@ -248,7 +248,30 @@ class _LogInScreenState extends State<LogInScreen> {
                                       return LanguageStrings.lblEnterDetails;
                                     },
                                   ),
-                                  const SizedBox(height: 24),
+                                  const SizedBox(height: 10),
+
+                                  // ── Forgot password link ─────────────
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: GestureDetector(
+                                      onTap: _showForgotPasswordSheet,
+                                      child: Text(
+                                        LanguageStrings.lblForgotPassword,
+                                        style: TextStyle(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.80),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          decoration:
+                                              TextDecoration.underline,
+                                          decorationColor: Colors.white
+                                              .withValues(alpha: 0.50),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 20),
 
                                   // Login button
                                   BlocConsumer<LogInCubit, LogInState>(
@@ -348,6 +371,123 @@ class _LogInScreenState extends State<LogInScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── Forgot password bottom sheet ─────────────────────────────────────────
+  void _showForgotPasswordSheet() {
+    final TextEditingController resetEmailController =
+        TextEditingController(text: _emailController.text.trim());
+    final AuthRepository authRepo = AuthRepository();
+    bool isSending = false;
+
+    Utils.showPremiumSheet(
+      context: context,
+      child: StatefulBuilder(
+        builder: (sheetCtx, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 8,
+              bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  LanguageStrings.lblResetPassword,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Description
+                Text(
+                  LanguageStrings.lblEnterEmailToReset,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.65),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 22),
+
+                // Email field
+                CustomTextFormField(
+                  backgroundColor: Colors.white.withValues(alpha: 0.10),
+                  hintTextColor: Colors.white.withValues(alpha: 0.45),
+                  labelStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 13),
+                  controller: resetEmailController,
+                  hintText: LanguageStrings.lblEnterYourEmail,
+                  labelText: LanguageStrings.lblEmail,
+                  textInputAction: TextInputAction.done,
+                  textInputType: TextInputType.emailAddress,
+                  validator: null,
+                ),
+                const SizedBox(height: 22),
+
+                // Send button
+                CustomRoundedButton(
+                  onTap: isSending
+                      ? null
+                      : () async {
+                          final email = resetEmailController.text.trim();
+                          if (email.isEmpty) {
+                            Utils.showMessage(
+                              sheetCtx,
+                              LanguageStrings.lblEnterDetails,
+                              MessageType.error,
+                            );
+                            return;
+                          }
+                          setSheetState(() => isSending = true);
+                          try {
+                            await authRepo.sendPasswordResetEmail(
+                                email: email);
+                            if (!sheetCtx.mounted) return;
+                            Navigator.pop(sheetCtx);
+                            Utils.showMessage(
+                              context,
+                              LanguageStrings.lblPasswordResetEmailSent,
+                              MessageType.success,
+                            );
+                          } catch (e) {
+                            if (!sheetCtx.mounted) return;
+                            Utils.showMessage(
+                              sheetCtx,
+                              e.toString().getFirebaseError(),
+                              MessageType.error,
+                            );
+                          } finally {
+                            if (sheetCtx.mounted) {
+                              setSheetState(() => isSending = false);
+                            }
+                          }
+                        },
+                  height: 52,
+                  buttonTitle: LanguageStrings.lblResetPassword,
+                  showBorder: false,
+                  widthPercentage: 1,
+                  radius: 16,
+                  child: isSending
+                      ? const CustomCircularProgressIndicator()
+                      : null,
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

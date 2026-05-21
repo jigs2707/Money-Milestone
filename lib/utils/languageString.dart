@@ -32,6 +32,25 @@ class LanguageStrings {
 
   static const lblPasswordDoesNotMatch = "Password does not match";
 
+  static const lblForgotPassword = "Forgot Password?";
+  static const lblResetPassword = "Reset Password";
+  static const lblEnterEmailToReset =
+      "Enter your email address and we'll send you a link to reset your password.";
+  static const lblPasswordResetEmailSent =
+      "Password reset email sent! Check your inbox (and spam folder).";
+
+  static const lblChangePassword = "Change Password";
+  static const lblCurrentPassword = "Current Password";
+  static const lblNewPassword = "New Password";
+  static const lblConfirmNewPassword = "Confirm New Password";
+  static const lblEnterCurrentPassword = "Enter current password";
+  static const lblEnterNewPassword = "Enter new password";
+  static const lblPasswordChangedSuccessfully = "Password changed successfully!";
+  static const lblIncorrectCurrentPassword =
+      "Current password is incorrect. Please try again.";
+
+
+
   static const lblVerificationMailSent =
       "Verification email sent to your inbox. Please confirm.";
 

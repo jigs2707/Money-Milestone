@@ -12,16 +12,27 @@ import 'package:money_milestone/cubits/themeCubit.dart';
 import 'package:money_milestone/data/repository/authRepository.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/widgets/currencyPickerSheet.dart';
+import 'package:money_milestone/screens/widgets/customCircularProgressIndicator.dart';
+import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
+import 'package:money_milestone/screens/widgets/customTextFormfield.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
 import 'package:money_milestone/utils/constant.dart';
 import 'package:money_milestone/utils/databaseHelper.dart';
+import 'package:money_milestone/utils/languageString.dart';
+import 'package:money_milestone/utils/stringExtensions.dart';
+import 'package:money_milestone/utils/utils.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   static Route route(final RouteSettings routeSettings) =>
       MaterialPageRoute(builder: (_) => const ProfileScreen());
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final username = HiveRepository.getUsername ?? '';
@@ -121,10 +132,8 @@ class ProfileScreen extends StatelessWidget {
                     ? snap.data!.data() as Map<String, dynamic>
                     : <String, dynamic>{};
 
-                final int streak =
-                    data[DatabaseHelper.currentStreakKey] ?? 0;
-                final int longest =
-                    data[DatabaseHelper.longestStreakKey] ?? 0;
+                final int streak = data[DatabaseHelper.currentStreakKey] ?? 0;
+                final int longest = data[DatabaseHelper.longestStreakKey] ?? 0;
                 final String? lastDepositRaw =
                     data[DatabaseHelper.lastDepositDateKey];
                 String lastDepositStr = '—';
@@ -136,8 +145,7 @@ class ProfileScreen extends StatelessWidget {
                 }
 
                 return SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -183,13 +191,10 @@ class ProfileScreen extends StatelessWidget {
                             const SizedBox(width: 16),
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    username.isEmpty
-                                        ? 'Saver'
-                                        : username,
+                                    username.isEmpty ? 'Saver' : username,
                                     style: TextStyle(
                                       color: context.colors.blackColors,
                                       fontWeight: FontWeight.w800,
@@ -204,8 +209,7 @@ class ProfileScreen extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: context.colors.accentColor
                                           .withValues(alpha: 0.1),
-                                      borderRadius:
-                                          BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
                                       'Money Milestone Member',
@@ -237,10 +241,9 @@ class ProfileScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(7),
                                   decoration: BoxDecoration(
-                                    color: Colors.orange
-                                        .withValues(alpha: 0.12),
-                                    borderRadius:
-                                        BorderRadius.circular(10),
+                                    color:
+                                        Colors.orange.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
                                         color: Colors.orange
                                             .withValues(alpha: 0.25)),
@@ -330,8 +333,7 @@ class ProfileScreen extends StatelessWidget {
                                 step: '1',
                                 emoji: '💰',
                                 title: 'Make a deposit',
-                                desc:
-                                    'Add savings to any goal today.'),
+                                desc: 'Add savings to any goal today.'),
                             const SizedBox(height: 10),
                             _howItWorksStep(context,
                                 step: '2',
@@ -373,8 +375,7 @@ class ProfileScreen extends StatelessWidget {
                                       Text(
                                         '${state.currency.symbol}  ${state.currency.code}',
                                         style: TextStyle(
-                                          color:
-                                              context.colors.accentColor,
+                                          color: context.colors.accentColor,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 13,
                                         ),
@@ -382,12 +383,10 @@ class ProfileScreen extends StatelessWidget {
                                       const SizedBox(width: 4),
                                       Icon(Icons.chevron_right_rounded,
                                           size: 18,
-                                          color: context
-                                              .colors.lightGreyColor),
+                                          color: context.colors.lightGreyColor),
                                     ],
                                   ),
-                                  onTap: () =>
-                                      showCurrencyPicker(context),
+                                  onTap: () => showCurrencyPicker(context),
                                 );
                               },
                             ),
@@ -399,28 +398,23 @@ class ProfileScreen extends StatelessWidget {
                             // Theme
                             BlocBuilder<ThemeCubit, ThemeState>(
                               builder: (context, state) {
-                                final isDark = context
-                                    .read<ThemeCubit>()
-                                    .isDarkMode;
+                                final isDark =
+                                    context.read<ThemeCubit>().isDarkMode;
                                 return _settingRow(
                                   context,
                                   icon: isDark
                                       ? Icons.light_mode_rounded
                                       : Icons.dark_mode_rounded,
-                                  label: isDark
-                                      ? 'Light Mode'
-                                      : 'Dark Mode',
+                                  label: isDark ? 'Light Mode' : 'Dark Mode',
                                   trailing: Switch.adaptive(
                                     value: isDark,
                                     onChanged: (_) => context
                                         .read<ThemeCubit>()
                                         .toggleTheme(),
-                                    activeColor:
-                                        context.colors.accentColor,
+                                    activeColor: context.colors.accentColor,
                                   ),
-                                  onTap: () => context
-                                      .read<ThemeCubit>()
-                                      .toggleTheme(),
+                                  onTap: () =>
+                                      context.read<ThemeCubit>().toggleTheme(),
                                 );
                               },
                             ),
@@ -436,24 +430,42 @@ class ProfileScreen extends StatelessWidget {
                       _glassCard(
                         context,
                         padding: EdgeInsets.zero,
-                        child: _settingRow(
-                          context,
-                          icon: Icons.logout_rounded,
-                          label: 'Log Out',
-                          iconColor: context.colors.redColor,
-                          labelColor: context.colors.redColor,
-                          trailing: Icon(Icons.chevron_right_rounded,
-                              size: 18,
-                              color: context.colors.redColor
-                                  .withValues(alpha: 0.5)),
-                          onTap: () => _showLogoutSheet(context),
+                        child: Column(
+                          children: [
+                            _settingRow(
+                              context,
+                              icon: Icons.lock_outline_rounded,
+                              label: 'Change Password',
+                              trailing: Icon(Icons.chevron_right_rounded,
+                                  size: 18,
+                                  color: context.colors.lightGreyColor),
+                              onTap: () => _showChangePasswordSheet(context),
+                            ),
+                            Divider(
+                                height: 1,
+                                indent: 54,
+                                color: context.colors.lightGreyColor
+                                    .withValues(alpha: 0.12)),
+                            _settingRow(
+                              context,
+                              icon: Icons.logout_rounded,
+                              label: 'Log Out',
+                              iconColor: context.colors.redColor,
+                              labelColor: context.colors.redColor,
+                              trailing: Icon(Icons.chevron_right_rounded,
+                                  size: 18,
+                                  color: context.colors.redColor
+                                      .withValues(alpha: 0.5)),
+                              onTap: () => _showLogoutSheet(context),
+                            ),
+                          ],
                         ),
                       ),
 
                       const SizedBox(height: 8),
                       Center(
                         child: Text(
-                          '${Constant.appName} · v1.0.0',
+                          '${Constant.appName} · v1.1.0',
                           style: TextStyle(
                             color: context.colors.lightGreyColor
                                 .withValues(alpha: 0.5),
@@ -485,8 +497,8 @@ class ProfileScreen extends StatelessWidget {
           padding: padding ?? const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: context.colors.cardGlassColor,
-            border: Border.all(
-                color: context.colors.cardBorderColor, width: 1.2),
+            border:
+                Border.all(color: context.colors.cardBorderColor, width: 1.2),
             borderRadius: BorderRadius.circular(20),
           ),
           child: child,
@@ -634,8 +646,7 @@ class ProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon,
-                  size: 17,
-                  color: iconColor ?? context.colors.accentColor),
+                  size: 17, color: iconColor ?? context.colors.accentColor),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -661,154 +672,263 @@ class ProfileScreen extends StatelessWidget {
         decoration: BoxDecoration(shape: BoxShape.circle, color: color),
       );
 
-  void _showLogoutSheet(BuildContext context) {
-    showModalBottomSheet(
+  // ── Change Password sheet ─────────────────────────────────────────────
+  void _showChangePasswordSheet(BuildContext context) {
+    final currentPwCtrl = TextEditingController();
+    final newPwCtrl = TextEditingController();
+    final confirmPwCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final authRepo = AuthRepository();
+    bool isLoading = false;
+
+    Utils.showPremiumSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
-      isScrollControlled: true,
-      builder: (_) {
-        return Container(
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-          decoration: BoxDecoration(
-            color: context.colors.isDarkMode
-                ? const Color(0xff141829)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: context.colors.redColor.withValues(alpha: 0.18),
-              width: 1.2,
+      child: StatefulBuilder(
+        builder: (sheetCtx, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 8,
+              bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
             ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color:
-                      context.colors.lightGreyColor.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(100),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                width: 68,
-                height: 68,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: context.colors.redColor.withValues(alpha: 0.10),
-                  border: Border.all(
-                      color:
-                          context.colors.redColor.withValues(alpha: 0.20),
-                      width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                        color:
-                            context.colors.redColor.withValues(alpha: 0.15),
-                        blurRadius: 20,
-                        spreadRadius: 2)
-                  ],
-                ),
-                child: Icon(Icons.logout_rounded,
-                    color: context.colors.redColor, size: 30),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                'Log Out?',
-                style: TextStyle(
-                    color: context.colors.blackColors,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 22,
-                    letterSpacing: -0.5),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  "You'll need to sign in again to access your savings goals.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    LanguageStrings.lblChangePassword,
+                    style: TextStyle(
+                      color: context.colors.blackColors,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Verify your current password, then set a new one.',
+                    style: TextStyle(
                       color: context.colors.lightGreyColor,
-                      fontSize: 14,
-                      height: 1.5),
-                ),
-              ),
-              const SizedBox(height: 28),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: context.colors.redColor,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                                color: context.colors.redColor
-                                    .withValues(alpha: 0.35),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4))
-                          ],
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // close sheet
-                            Navigator.of(context).pop(); // close profile
-                            AuthRepository().signOut().then((_) {
-                              HiveRepository.clearBoxValues(
-                                  boxName: HiveRepository.authStatusBoxKey);
-                              HiveRepository.clearBoxValues(
-                                  boxName: HiveRepository.userDetailBoxKey);
-                              Navigator.of(context)
-                                  .pushReplacementNamed(Routes.logInScreen);
-                            });
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Current password
+                  CustomTextFormField(
+                    controller: currentPwCtrl,
+                    labelText: LanguageStrings.lblCurrentPassword,
+                    hintText: LanguageStrings.lblEnterCurrentPassword,
+                    isPswd: true,
+                    textInputAction: TextInputAction.next,
+                    textInputType: TextInputType.text,
+                    validator: (v) {
+                      if (v == null || v.isEmpty) {
+                        return LanguageStrings.lblEnterDetails;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  // New password
+                  CustomTextFormField(
+                    controller: newPwCtrl,
+                    labelText: LanguageStrings.lblNewPassword,
+                    hintText: LanguageStrings.lblEnterNewPassword,
+                    isPswd: true,
+                    textInputAction: TextInputAction.next,
+                    textInputType: TextInputType.text,
+                    validator: (v) {
+                      if (v == null || v.isEmpty) {
+                        return LanguageStrings.lblEnterDetails;
+                      }
+                      if (v.length < 8) {
+                        return 'Password must be at least 8 characters';
+                      }
+                      if (!v.contains(RegExp(r'[A-Z]'))) {
+                        return 'Add at least one uppercase letter';
+                      }
+                      if (!v.contains(RegExp(r'[0-9]'))) {
+                        return 'Add at least one number';
+                      }
+                      if (!v.contains(
+                          RegExp(r'[!@#\$%^&*(),.?":{}|<>\-_=+\[\]\/\\]'))) {
+                        return 'Add at least one special character';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Confirm new password
+                  CustomTextFormField(
+                    controller: confirmPwCtrl,
+                    labelText: LanguageStrings.lblConfirmNewPassword,
+                    hintText: LanguageStrings.lblEnterNewPassword,
+                    isPswd: true,
+                    textInputAction: TextInputAction.done,
+                    textInputType: TextInputType.text,
+                    validator: (v) {
+                      if (v == null || v.isEmpty) {
+                        return LanguageStrings.lblEnterDetails;
+                      }
+                      if (v != newPwCtrl.text) {
+                        return LanguageStrings.lblPasswordDoesNotMatch;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Confirm button
+                  CustomRoundedButton(
+                    onTap: isLoading
+                        ? null
+                        : () async {
+                            if (!formKey.currentState!.validate()) return;
+                            setSheetState(() => isLoading = true);
+                            try {
+                              // Step 1: re-authenticate
+                              await authRepo.reAuthenticate(
+                                password: currentPwCtrl.text.trim(),
+                              );
+                              // Step 2: update password
+                              await authRepo.updatePassword(
+                                newPassword: newPwCtrl.text.trim(),
+                              );
+                              if (!sheetCtx.mounted) return;
+                              Navigator.pop(sheetCtx);
+                              Utils.showMessage(
+                                context,
+                                LanguageStrings.lblPasswordChangedSuccessfully,
+                                MessageType.success,
+                              );
+                            } catch (e) {
+                              if (!sheetCtx.mounted) return;
+                              // Detect wrong-password from re-auth failure
+                              final msg = e
+                                      .toString()
+                                      .contains('invalid-credential')
+                                  ? LanguageStrings.lblIncorrectCurrentPassword
+                                  : e.toString().getFirebaseError();
+                              Utils.showMessage(
+                                sheetCtx,
+                                msg,
+                                MessageType.error,
+                              );
+                            } finally {
+                              if (sheetCtx.mounted) {
+                                setSheetState(() => isLoading = false);
+                              }
+                            }
                           },
-                          style: TextButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16))),
-                          child: const Text('Yes, Log Out',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: TextButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                                color: context.colors.lightGreyColor
-                                    .withValues(alpha: 0.3)),
-                          ),
-                        ),
-                        child: Text('Cancel',
-                            style: TextStyle(
-                                color: context.colors.lightGreyColor,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16)),
-                      ),
-                    ),
-                  ],
-                ),
+                    height: 52,
+                    buttonTitle: LanguageStrings.lblChangePassword,
+                    showBorder: false,
+                    widthPercentage: 1,
+                    radius: 16,
+                    child: isLoading
+                        ? const CustomCircularProgressIndicator()
+                        : null,
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showLogoutSheet(BuildContext context) {
+    Utils.showPremiumSheet(
+      context: context,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 68,
+              height: 68,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: context.colors.redColor.withValues(alpha: 0.10),
+                border: Border.all(
+                    color: context.colors.redColor.withValues(alpha: 0.20),
+                    width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                      color: context.colors.redColor.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      spreadRadius: 2)
+                ],
+              ),
+              child: Icon(Icons.logout_rounded,
+                  color: context.colors.redColor, size: 30),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              'Log Out?',
+              style: TextStyle(
+                  color: context.colors.blackColors,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 22,
+                  letterSpacing: -0.5),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "You'll need to sign in again to access your savings goals.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: context.colors.lightGreyColor,
+                  fontSize: 14,
+                  height: 1.5),
+            ),
+            const SizedBox(height: 28),
+            CustomRoundedButton(
+              onTap: () {
+                Navigator.of(context).pop(); // close sheet
+                Navigator.of(context).pop(); // close profile
+                AuthRepository().signOut().then((_) {
+                  HiveRepository.clearBoxValues(
+                      boxName: HiveRepository.authStatusBoxKey);
+                  HiveRepository.clearBoxValues(
+                      boxName: HiveRepository.userDetailBoxKey);
+                  Navigator.of(context)
+                      .pushReplacementNamed(Routes.logInScreen);
+                });
+              },
+              height: 52,
+              buttonTitle: 'Yes, Log Out',
+              backgroundColor: context.colors.redColor,
+              titleColor: Colors.white,
+              showBorder: false,
+              widthPercentage: 1,
+              radius: 16,
+            ),
+            const SizedBox(height: 10),
+            CustomRoundedButton(
+              onTap: () => Navigator.of(context).pop(),
+              height: 52,
+              buttonTitle: 'Cancel',
+              backgroundColor: Colors.transparent,
+              titleColor: context.colors.lightGreyColor,
+              showBorder: true,
+              borderColor: context.colors.lightGreyColor.withValues(alpha: 0.3),
+              widthPercentage: 1,
+              radius: 16,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

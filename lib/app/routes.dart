@@ -1,3 +1,5 @@
+import 'package:money_milestone/screens/ui/appUpdateScreen.dart';
+import 'package:money_milestone/screens/ui/emailVerificationScreen.dart';
 import 'package:money_milestone/screens/ui/goalDetailsScreen.dart';
 import 'package:money_milestone/screens/ui/homeScreen.dart';
 import 'package:money_milestone/screens/ui/logInScreen.dart';
@@ -14,6 +16,8 @@ class Routes {
   static const String homeScreen = "/home";
   static const String goalDetailsScreen = "/goalDetails";
   static const String profileScreen = "/profile";
+  static const String emailVerificationScreen = "/emailVerification";
+  static const String appUpdateScreen = "/appUpdate";
 
   static String currentRoute = splashRoute;
   static String previousRoute = "";
@@ -41,6 +45,12 @@ class Routes {
 
       case profileScreen:
         return ProfileScreen.route(routeSettings);
+
+      case emailVerificationScreen:
+        return EmailVerificationScreen.route(routeSettings);
+
+      case appUpdateScreen:
+        return AppUpdateScreen.route(routeSettings);
 
       default:
         return MaterialPageRoute(

@@ -691,31 +691,35 @@ class _HomeScreenState extends State<HomeScreen> {
     final username = HiveRepository.getUsername ?? "";
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Welcome back 👋",
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: context.colors.lightGreyColor,
-                letterSpacing: 0.2,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Welcome back 👋",
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: context.colors.lightGreyColor,
+                  letterSpacing: 0.2,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              username.isEmpty ? "Saver" : username,
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
-                color: context.colors.blackColors,
-                letterSpacing: -0.8,
+              const SizedBox(height: 2),
+              Text(
+                username.isEmpty ? "Saver" : username,
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: context.colors.blackColors,
+                  letterSpacing: -0.8,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const Spacer(),
+
         // ── Streak Pill (taps to profile) ─────────────────────────
         StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance

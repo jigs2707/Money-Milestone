@@ -1,11 +1,13 @@
 // ignore_for_file: file_names, use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart' hide Constant;
 import 'package:flutter/material.dart';
 import 'package:money_milestone/app/routes.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
 import 'package:money_milestone/utils/constant.dart';
 import 'package:money_milestone/utils/contextExtensions.dart';
+import 'package:money_milestone/utils/databaseHelper.dart';
 
 class SplashScreen extends StatefulWidget {
   SplashScreen({final Key? key}) : super(key: key);
@@ -70,18 +72,82 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate after splash duration
+    // Navigate after splash duration — with version check
     Future.delayed(
       Duration(seconds: Constant.splashScreenDuration),
-      () {
-        if (!mounted) return;
-        if (HiveRepository.isUserLoggedIn) {
-          context.pushReplacementNamed(Routes.homeScreen);
-        } else {
-          context.pushReplacementNamed(Routes.logInScreen);
-        }
-      },
+      () => _checkVersionAndNavigate(),
     );
+  }
+
+  // ── Version check logic ─────────────────────────────────────────────────
+  Future<void> _checkVersionAndNavigate() async {
+    if (!mounted) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection(DatabaseHelper.appConfigCollectionName)
+          .doc(DatabaseHelper.appConfigDocName)
+          .get();
+
+      print("doc is $doc");
+      if (doc.exists) {
+        final data = doc.data()!;
+        final String latestVersion =
+            data[DatabaseHelper.latestVersionKey] ?? Constant.appVersion;
+        final bool isForceUpdate =
+            data[DatabaseHelper.isForceUpdateKey] ?? false;
+        final String storeUrl =
+            data[DatabaseHelper.storeUrlKey] ?? Constant.defaultStoreUrl;
+
+        if (_isUpdateAvailable(Constant.appVersion, latestVersion)) {
+          if (!mounted) return;
+          context.pushReplacementNamed(
+            Routes.appUpdateScreen,
+            arguments: {
+              'isForceUpdate': isForceUpdate,
+              'latestVersion': latestVersion,
+              'storeUrl': storeUrl,
+            },
+          );
+          return;
+        }
+      }
+    } catch (e, st) {
+      print("error is $e");
+      print("stacktrace is $st");
+      // If Firestore fails (e.g. offline), skip version check silently.
+    }
+
+    // No update needed — navigate normally.
+    if (!mounted) return;
+    if (HiveRepository.isUserLoggedIn) {
+      context.pushReplacementNamed(Routes.homeScreen);
+    } else {
+      context.pushReplacementNamed(Routes.logInScreen);
+    }
+  }
+
+  /// Returns true when [latest] is strictly greater than [current].
+  /// Compares each numeric segment (e.g. 1.2.0 vs 1.3.0).
+  bool _isUpdateAvailable(String current, String latest) {
+    final currentParts =
+        current.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    final latestParts =
+        latest.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+
+    // Pad to equal length
+    while (currentParts.length < latestParts.length) {
+      currentParts.add(0);
+    }
+    while (latestParts.length < currentParts.length) {
+      latestParts.add(0);
+    }
+
+    for (int i = 0; i < currentParts.length; i++) {
+      if (latestParts[i] > currentParts[i]) return true;
+      if (latestParts[i] < currentParts[i]) return false;
+    }
+    return false; // versions are equal
   }
 
   @override

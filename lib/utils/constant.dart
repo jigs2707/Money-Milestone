@@ -17,6 +17,13 @@ class Constant {
   static const int numberOfDecimalPointAfterAmount = 2;
 
   static const int showCalenderTillDays = 30000;
+
+  /// Current app version — bump this on every release.
+  static const String appVersion = "1.1.0";
+
+  /// Fallback store URL if Firestore doesn't supply one.
+  static const String defaultStoreUrl =
+      "https://play.google.com/store/apps/details?id=com.myfinancial.goal";
 }
 
 // to manage snackBar/toast/message

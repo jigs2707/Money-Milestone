@@ -5,9 +5,7 @@ import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/app/routes.dart';
 import 'package:money_milestone/cubits/signUpCubit.dart';
-import 'package:money_milestone/cubits/currencyCubit.dart';
 import 'package:money_milestone/data/repository/authRepository.dart';
-import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/widgets/customCircularProgressIndicator.dart';
 import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
 import 'package:money_milestone/screens/widgets/customTextFormfield.dart';
@@ -44,8 +42,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _passwordFocusNode = FocusNode();
   final _confirmPasswordFocusNode = FocusNode();
 
+  // 0 = empty, 1 = weak, 2 = fair, 3 = good, 4 = strong
+  int _passwordStrength = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
+
+  void _onPasswordChanged() {
+    setState(() {
+      _passwordStrength = _calcStrength(_passwordController.text);
+    });
+  }
+
+  /// Returns a score 0–4 based on which criteria are met.
+  int _calcStrength(String pw) {
+    if (pw.isEmpty) return 0;
+    int score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.contains(RegExp(r'[A-Z]'))) score++;
+    if (pw.contains(RegExp(r'[0-9]'))) score++;
+    if (pw.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>\-_=+\[\]\\/]'))) score++;
+    return score;
+  }
+
   @override
   void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -282,11 +307,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     textInputAction: TextInputAction.next,
                                     textInputType: TextInputType.text,
                                     validator: (password) {
-                                      if (password != null &&
-                                          password.isNotEmpty) return null;
-                                      return LanguageStrings.lblEnterDetails;
+                                      if (password == null ||
+                                          password.isEmpty) {
+                                        return LanguageStrings
+                                            .lblEnterDetails;
+                                      }
+                                      if (password.length < 8) {
+                                        return 'Password must be at least 8 characters';
+                                      }
+                                      if (!password.contains(
+                                          RegExp(r'[A-Z]'))) {
+                                        return 'Add at least one uppercase letter';
+                                      }
+                                      if (!password.contains(
+                                          RegExp(r'[0-9]'))) {
+                                        return 'Add at least one number';
+                                      }
+                                      if (!password.contains(RegExp(
+                                          r'[!@#\$%^&*(),.?":{}|<>\-_=+\[\]\\/]'))) {
+                                        return 'Add at least one special character';
+                                      }
+                                      return null;
                                     },
                                   ),
+
+                                  // Strength meter
+                                  if (_passwordStrength > 0) ..._buildStrengthMeter(),
+
                                   const SizedBox(height: 12),
 
                                   // Confirm Password
@@ -319,19 +366,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   // Sign up button
                                   BlocConsumer<SignUpCubit, SignUpState>(
                                     listener: (context, state) async {
-                                      if (state is SignUpSuccess) {
-                                        HiveRepository.setUsername =
-                                            _nameController.text
-                                                .trim();
-                                        HiveRepository.setUserLoggedIn =
-                                            true;
-                                        HiveRepository.setUserId =
-                                            state.userData.uid;
-                                        await context
-                                            .read<CurrencyCubit>()
-                                            .loadCurrency();
-                                        context.pushNamedAndRemoveUntil(
-                                            Routes.homeScreen);
+                                      if (state is SignUpEmailVerificationSent) {
+                                        // Account created — navigate to
+                                        // verification screen. Do NOT persist
+                                        // the session yet; the user must
+                                        // verify their email first.
+                                        context.pushNamed(
+                                          Routes.emailVerificationScreen,
+                                          arguments: state.userData,
+                                        );
                                       } else if (state is SignUpFailure) {
                                         Utils.showMessage(
                                             context,
@@ -434,6 +477,120 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── Password strength meter ──────────────────────────────────────────────
+  List<Widget> _buildStrengthMeter() {
+    const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+    const colors = [
+      Color(0xffF87171), // red
+      Color(0xffFBBF24), // amber
+      Color(0xff34D399), // teal
+      Color(0xff4ADE80), // green
+    ];
+    final s = _passwordStrength.clamp(1, 4);
+    final barColor = colors[s - 1];
+    final label = labels[s - 1];
+
+    final pw = _passwordController.text;
+    final has8 = pw.length >= 8;
+    final hasUpper = pw.contains(RegExp(r'[A-Z]'));
+    final hasNum = pw.contains(RegExp(r'[0-9]'));
+    final hasSpecial = pw.contains(
+        RegExp(r'[!@#\$%^&*(),.?":{}|<>\-_=+\[\]\\/]'));
+
+    return [
+      const SizedBox(height: 10),
+      // ── Segmented bar ──
+      Row(
+        children: List.generate(4, (i) {
+          final filled = i < s;
+          return Expanded(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: 4,
+              margin: EdgeInsets.only(right: i < 3 ? 4 : 0),
+              decoration: BoxDecoration(
+                color: filled
+                    ? barColor
+                    : Colors.white.withValues(alpha: 0.20),
+                borderRadius: BorderRadius.circular(100),
+              ),
+            ),
+          );
+        }),
+      ),
+      const SizedBox(height: 6),
+      // ── Label ──
+      Align(
+        alignment: Alignment.centerRight,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: Text(
+            label,
+            key: ValueKey(label),
+            style: TextStyle(
+              color: barColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      // ── Requirement chips ──
+      Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          _reqChip('8+ chars', has8),
+          _reqChip('A–Z', hasUpper),
+          _reqChip('0–9', hasNum),
+          _reqChip('!@#…', hasSpecial),
+        ],
+      ),
+    ];
+  }
+
+  Widget _reqChip(String label, bool met) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: met
+            ? const Color(0xff4ADE80).withValues(alpha: 0.15)
+            : Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: met
+              ? const Color(0xff4ADE80).withValues(alpha: 0.50)
+              : Colors.white.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            met ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+            size: 11,
+            color: met
+                ? const Color(0xff4ADE80)
+                : Colors.white.withValues(alpha: 0.45),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: met
+                  ? const Color(0xff4ADE80)
+                  : Colors.white.withValues(alpha: 0.55),
+            ),
+          ),
+        ],
       ),
     );
   }
