@@ -58,6 +58,12 @@ class HiveRepository {
     await Hive.openBox(notificationsBoxKey);
   }
 
+  /// Notification permission prompt tracking
+  static bool get hasShownNotifPermissionPrompt =>
+      Hive.box(settingsBoxKey).get('notif_permission_prompted') == true;
+  static Future<void> markNotifPermissionPromptShown() =>
+      Hive.box(settingsBoxKey).put('notif_permission_prompted', true);
+
   /// Returns true if this badge key has already been celebrated
   static bool isBadgeSeen(String badgeKey) =>
       Hive.box(badgesBoxKey).get(badgeKey) == true;

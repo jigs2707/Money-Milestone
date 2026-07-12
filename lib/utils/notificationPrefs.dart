@@ -26,7 +26,7 @@ class NotificationPrefs {
   static set streakMinute(int v) => _box.put('streak_minute', v);
 
   // Morning motivation
-  static bool get isMotivationEnabled => _box.get('motivation_enabled', defaultValue: false);
+  static bool get isMotivationEnabled => _box.get('motivation_enabled', defaultValue: true);
   static set isMotivationEnabled(bool v) => _box.put('motivation_enabled', v);
 
   // Goal deadline alerts

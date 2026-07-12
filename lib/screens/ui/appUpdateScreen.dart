@@ -3,8 +3,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:money_milestone/app/routes.dart';
+import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
 import 'package:money_milestone/utils/constant.dart';
+import 'package:money_milestone/utils/contextExtensions.dart';
 import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -194,7 +197,13 @@ class AppUpdateScreen extends StatelessWidget {
                       if (!isForceUpdate) ...[
                         const SizedBox(height: 12),
                         CustomRoundedButton(
-                          onTap: () => Navigator.of(context).pop(),
+                          onTap: () {
+                            if (HiveRepository.isUserLoggedIn) {
+                              context.pushReplacementNamed(Routes.homeScreen);
+                            } else {
+                              context.pushReplacementNamed(Routes.logInScreen);
+                            }
+                          },
                           height: 54,
                           buttonTitle: 'Not Now',
                           backgroundColor: Colors.transparent,
