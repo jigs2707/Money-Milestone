@@ -62,12 +62,13 @@ class Utils {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (_) => BackdropFilter(
+      builder: (modalCtx) => BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Padding(
-          // Moves sheet up when keyboard appears
+          // Moves sheet up when keyboard appears — must use modalCtx so it
+          // rebuilds reactively when the keyboard opens inside the sheet.
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: MediaQuery.of(modalCtx).viewInsets.bottom,
           ),
           child: Container(
             decoration: BoxDecoration(
@@ -98,7 +99,7 @@ class Utils {
                 ),
                 child,
                 // bottom safe-area pad
-                SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
+                SizedBox(height: MediaQuery.of(modalCtx).padding.bottom + 8),
               ],
             ),
           ),

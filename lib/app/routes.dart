@@ -3,6 +3,7 @@ import 'package:money_milestone/screens/ui/emailVerificationScreen.dart';
 import 'package:money_milestone/screens/ui/goalDetailsScreen.dart';
 import 'package:money_milestone/screens/ui/homeScreen.dart';
 import 'package:money_milestone/screens/ui/logInScreen.dart';
+import 'package:money_milestone/screens/ui/notificationPreferencesScreen.dart';
 import 'package:money_milestone/screens/ui/profileScreen.dart';
 import 'package:money_milestone/screens/ui/signUpScreen.dart';
 import 'package:money_milestone/screens/ui/splashScreen.dart';
@@ -18,6 +19,7 @@ class Routes {
   static const String profileScreen = "/profile";
   static const String emailVerificationScreen = "/emailVerification";
   static const String appUpdateScreen = "/appUpdate";
+  static const String notificationPreferencesScreen = "/notificationPreferences";
 
   static String currentRoute = splashRoute;
   static String previousRoute = "";
@@ -51,6 +53,9 @@ class Routes {
 
       case appUpdateScreen:
         return AppUpdateScreen.route(routeSettings);
+
+      case notificationPreferencesScreen:
+        return NotificationPreferencesScreen.route(routeSettings);
 
       default:
         return MaterialPageRoute(

@@ -11,7 +11,9 @@ import 'package:money_milestone/cubits/currencyCubit.dart';
 import 'package:money_milestone/cubits/themeCubit.dart';
 import 'package:money_milestone/data/repository/authRepository.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
+import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
 import 'package:money_milestone/screens/widgets/currencyPickerSheet.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/screens/widgets/customCircularProgressIndicator.dart';
 import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
 import 'package:money_milestone/screens/widgets/customTextFormfield.dart';
@@ -34,6 +36,12 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
+  void initState() {
+    super.initState();
+    ClarityService.setScreen('Profile');
+  }
+
+  @override
   Widget build(BuildContext context) {
     final username = HiveRepository.getUsername ?? '';
     final userId = HiveRepository.getUserId ?? '';
@@ -43,6 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
+      bottomNavigationBar: const BannerAdWidget(),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -389,6 +398,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   onTap: () => showCurrencyPicker(context),
                                 );
                               },
+                            ),
+                            Divider(
+                                height: 1,
+                                indent: 54,
+                                color: context.colors.lightGreyColor
+                                    .withValues(alpha: 0.12)),
+                            // Notifications
+                            _settingRow(
+                              context,
+                              icon: Icons.notifications_rounded,
+                              label: 'Notifications',
+                              trailing: Icon(Icons.chevron_right_rounded,
+                                  size: 18,
+                                  color: context.colors.lightGreyColor),
+                              onTap: () => Navigator.of(context).pushNamed(
+                                  Routes.notificationPreferencesScreen),
                             ),
                             Divider(
                                 height: 1,
@@ -802,6 +827,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               await authRepo.updatePassword(
                                 newPassword: newPwCtrl.text.trim(),
                               );
+                              ClarityService.logPasswordChanged();
                               if (!sheetCtx.mounted) return;
                               Navigator.pop(sheetCtx);
                               Utils.showMessage(
@@ -897,6 +923,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () {
                 Navigator.of(context).pop(); // close sheet
                 Navigator.of(context).pop(); // close profile
+                ClarityService.logLogout();
                 AuthRepository().signOut().then((_) {
                   HiveRepository.clearBoxValues(
                       boxName: HiveRepository.authStatusBoxKey);

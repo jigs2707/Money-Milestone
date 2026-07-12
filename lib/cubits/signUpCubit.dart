@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/data/repository/authRepository.dart';
 import 'package:money_milestone/data/repository/userRepository.dart';
+import 'package:money_milestone/utils/analyticsService.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 abstract class SignUpState {}
 
@@ -49,6 +51,9 @@ class SignUpCubit extends Cubit<SignUpState> {
       // Send email verification — user must confirm before they can log in.
       await _authRepository.sendEmailVerification();
       //
+      await AnalyticsService.logSignUp();
+      ClarityService.logSignUp();
+      ClarityService.logEmailVerificationSent();
       emit(SignUpEmailVerificationSent(userData: user));
     } catch (e) {
       emit(SignUpFailure(e.toString()));

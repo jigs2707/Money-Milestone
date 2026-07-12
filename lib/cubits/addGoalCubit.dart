@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/data/repository/goalRepository.dart';
+import 'package:money_milestone/utils/analyticsService.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 
 abstract class AddGoalState {}
@@ -33,6 +35,14 @@ class AddGoalCubit extends Cubit<AddGoalState> {
       //
       await _goalRepository.addGoal(goalDetails: goalDetails, userId: userId);
       //
+      await AnalyticsService.logGoalCreated(
+        goalName: goalDetails.goalName.toString(),
+        goalAmount: double.tryParse(goalDetails.goalAmount.toString()) ?? 0,
+      );
+      ClarityService.logGoalCreated(
+        goalName: goalDetails.goalName.toString(),
+        amount: double.tryParse(goalDetails.goalAmount.toString()) ?? 0,
+      );
       emit(AddGoalSuccess(goalDetails: goalDetails));
     } catch (e) {
       emit(AddGoalFailure(e.toString()));

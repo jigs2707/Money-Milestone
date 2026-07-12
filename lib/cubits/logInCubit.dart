@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/data/repository/authRepository.dart';
+import 'package:money_milestone/utils/analyticsService.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 abstract class LogInState {}
 
@@ -42,6 +44,9 @@ class LogInCubit extends Cubit<LogInState> {
         return;
       }
       //
+      await AnalyticsService.logLogin();
+      ClarityService.setUserId(user.uid);
+      ClarityService.logLogin();
       emit(LogInSuccess(userData: user));
     } catch (e) {
       emit(LogInFailure(e.toString()));

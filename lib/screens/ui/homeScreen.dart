@@ -18,6 +18,13 @@ import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/widgets/addGoalDialog.dart';
 import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
 import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
+import 'package:money_milestone/cubits/categoryCubit.dart';
+import 'package:money_milestone/data/model/goalCategoryModel.dart';
+import 'package:money_milestone/data/repository/categoryRepository.dart';
+import 'package:money_milestone/utils/adService.dart';
+import 'package:money_milestone/utils/clarityService.dart';
+import 'package:money_milestone/utils/goalCategories.dart';
+import 'package:money_milestone/utils/sessionTracker.dart';
 import 'package:money_milestone/screens/widgets/customTweenAnimation.dart';
 import 'package:money_milestone/screens/widgets/customerShimmerWidget.dart';
 import 'package:money_milestone/screens/widgets/badgesShelfWidget.dart';
@@ -32,6 +39,7 @@ import 'package:money_milestone/utils/stringExtensions.dart';
 import 'package:money_milestone/screens/widgets/fadeSlideIn.dart';
 import 'package:money_milestone/cubits/currencyCubit.dart';
 import 'package:money_milestone/screens/widgets/currencyPickerSheet.dart';
+import 'package:money_milestone/utils/notificationService.dart';
 import 'package:money_milestone/utils/utils.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -53,6 +61,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Stream<QuerySnapshot>? _goalsStream;
+  late final CategoryCubit _categoryCubit;
+  String _statusFilter = 'all';
+  Set<String> _categoryFilters = {};
+  String _sortKey = 'default';
+
+  bool get _hasActiveFilter =>
+      _categoryFilters.isNotEmpty || _sortKey != 'default';
 
   final databaseReference = FirebaseFirestore.instance;
 
@@ -66,19 +81,34 @@ class _HomeScreenState extends State<HomeScreen> {
         .doc(userId)
         .collection(userId)
         .snapshots();
+
+    _categoryCubit = CategoryCubit(CategoryRepository(), userId);
+
+    // Log this app open in Firestore + Clarity for retention analytics
+    SessionTracker.instance.logAppOpen();
+    ClarityService.setScreen('Home');
+    ClarityService.logAppOpened();
   }
 
   @override
   void dispose() {
+    _categoryCubit.close();
     super.dispose();
   }
 
   // ── Goal card ─────────────────────────────────────────────────────────────
-  Widget _getGoalDetailsWidget(GoalModel goalDetails) {
+  Widget _getGoalDetailsWidget(
+    GoalModel goalDetails, {
+    List<GoalCategoryModel> customCategories = const [],
+  }) {
     double savedAmount = double.parse(goalDetails.goalSavedAmount ?? "0");
     double totalAmount = double.parse(goalDetails.goalAmount.toString());
     double goalPercentage = (savedAmount * 100) / totalAmount;
     final pct = goalPercentage.clamp(0, 100);
+    final category = GoalCategories.find(
+      goalDetails.categoryId,
+      customs: customCategories,
+    );
 
     Color progressColor;
     Color progressBg;
@@ -97,7 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.only(bottom: 14),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () async {
+        onTap: () {
+          AdService.instance.showInterstitialOnEveryNthTap(threshold: 5);
           context.pushNamed(Routes.goalDetailsScreen, arguments: {
             "goalDetails": goalDetails,
           });
@@ -123,26 +154,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.fromLTRB(18, 16, 10, 0),
                     child: Row(
                       children: [
-                        // Icon pill
+                        // Category icon pill
                         Container(
                           padding: const EdgeInsets.all(9),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                context.colors.accentColor.withValues(alpha: 0.18),
-                                context.colors.accentColor.withValues(alpha: 0.08),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
+                            color: category.color.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: context.colors.accentColor.withValues(alpha: 0.25),
+                              color: category.color.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Icon(
-                            Icons.flag_rounded,
-                            color: context.colors.accentColor,
+                            category.icon,
+                            color: category.color,
                             size: 18,
                           ),
                         ),
@@ -605,6 +629,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               data["id"] = doc.id;
                               parsedGoals.add(GoalModel.fromJson(data));
                             }
+                            // Reschedule goal deadline notifications whenever goals update
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              NotificationService.instance.scheduleAll(parsedGoals);
+                            });
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -643,16 +671,76 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 14),
+                                const SizedBox(height: 12),
 
-                                // Goal cards — staggered
-                                ...List.generate(parsedGoals.length, (i) {
-                                  return FadeSlideIn(
-                                    delay: Duration(milliseconds: 280 + i * 60),
-                                    offset: 16,
-                                    child: _getGoalDetailsWidget(parsedGoals[i]),
-                                  );
-                                }),
+                                // Filter / sort bar
+                                FadeSlideIn(
+                                  delay: const Duration(milliseconds: 260),
+                                  offset: 10,
+                                  child: BlocBuilder<CategoryCubit, CategoryState>(
+                                    bloc: _categoryCubit,
+                                    builder: (_, catState) {
+                                      final customs = catState is CategoryLoaded
+                                          ? catState.customCategories
+                                          : <GoalCategoryModel>[];
+                                      return _buildFilterBar(
+                                          parsedGoals, customs);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Goal cards — filtered, staggered, banners every 3rd
+                                BlocBuilder<CategoryCubit, CategoryState>(
+                                  bloc: _categoryCubit,
+                                  builder: (_, catState) {
+                                    final customs = catState is CategoryLoaded
+                                        ? catState.customCategories
+                                        : <GoalCategoryModel>[];
+                                    final filtered =
+                                        _filterGoals(parsedGoals);
+                                    if (filtered.isEmpty) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 20),
+                                        child: Center(
+                                          child: Text(
+                                            'No goals match this filter',
+                                            style: TextStyle(
+                                              color:
+                                                  context.colors.lightGreyColor,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return Column(
+                                      children: List.generate(filtered.length,
+                                          (i) {
+                                        return Column(
+                                          children: [
+                                            FadeSlideIn(
+                                              delay: Duration(
+                                                  milliseconds: 280 + i * 60),
+                                              offset: 16,
+                                              child: _getGoalDetailsWidget(
+                                                filtered[i],
+                                                customCategories: customs,
+                                              ),
+                                            ),
+                                            if ((i + 1) % 3 == 0 &&
+                                                i + 1 < filtered.length)
+                                              const Padding(
+                                                padding: EdgeInsets.only(
+                                                    bottom: 14),
+                                                child: BannerAdWidget(),
+                                              ),
+                                          ],
+                                        );
+                                      }),
+                                    );
+                                  },
+                                ),
                               ],
                             );
                           } else {
@@ -686,6 +774,451 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  // ── Filter bar ────────────────────────────────────────────────────────────
+  Widget _buildFilterBar(
+      List<GoalModel> goals, List<GoalCategoryModel> customs) {
+    const statusChips = [
+      ('all', 'All'),
+      ('pending', 'Pending'),
+      ('completed', 'Completed'),
+    ];
+
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 36,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              itemCount: statusChips.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (_, i) {
+                final (key, label) = statusChips[i];
+                final isSelected = _statusFilter == key;
+                return GestureDetector(
+                  onTap: () {
+                    if (_statusFilter == key) return;
+                    setState(() => _statusFilter = key);
+                    ClarityService.logGoalFilterApplied(filter: key);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOut,
+                    height: 36,
+                    alignment: Alignment.center,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? context.colors.accentColor
+                              .withValues(alpha: 0.15)
+                          : context.colors.cardGlassColor,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected
+                            ? context.colors.accentColor
+                                .withValues(alpha: 0.5)
+                            : context.colors.cardBorderColor,
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? context.colors.accentColor
+                            : context.colors.lightGreyColor,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        // Advanced filter/sort button
+        GestureDetector(
+          onTap: () => _showGoalFilterSheet(goals, customs),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            height: 36,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: _hasActiveFilter
+                  ? context.colors.accentColor.withValues(alpha: 0.15)
+                  : context.colors.cardGlassColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: _hasActiveFilter
+                    ? context.colors.accentColor.withValues(alpha: 0.5)
+                    : context.colors.cardBorderColor,
+                width: _hasActiveFilter ? 1.5 : 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.tune_rounded,
+                  size: 16,
+                  color: _hasActiveFilter
+                      ? context.colors.accentColor
+                      : context.colors.lightGreyColor,
+                ),
+                if (_hasActiveFilter) ...[
+                  const SizedBox(width: 5),
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: context.colors.accentColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Filter sheet ──────────────────────────────────────────────────────────
+  void _showGoalFilterSheet(
+      List<GoalModel> goals, List<GoalCategoryModel> customs) {
+    final Set<String> sheetCategories = Set.from(_categoryFilters);
+    String sheetSort = _sortKey;
+
+    final usedCategoryIds = goals.map((g) => g.categoryId).toSet();
+    final availableCategories = GoalCategories.all(customs: customs)
+        .where((c) => usedCategoryIds.contains(c.id))
+        .toList();
+
+    const sortOptions = [
+      ('default', Icons.list_rounded, 'Default order'),
+      ('pct_asc', Icons.trending_up_rounded, '% Progress: Low → High'),
+      ('pct_desc', Icons.trending_down_rounded, '% Progress: High → Low'),
+      ('days_asc', Icons.timer_rounded, 'Remaining Days: Fewest first'),
+      ('days_desc', Icons.hourglass_top_rounded, 'Remaining Days: Most first'),
+      ('amount_asc', Icons.south_rounded, 'Amount: Low → High'),
+      ('amount_desc', Icons.north_rounded, 'Amount: High → Low'),
+    ];
+
+    Utils.showPremiumSheet(
+      context: context,
+      child: StatefulBuilder(
+        builder: (ctx, setSheet) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Header ──────────────────────────────────────────
+                Row(
+                  children: [
+                    Text(
+                      'Filter & Sort',
+                      style: TextStyle(
+                        color: ctx.colors.blackColors,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (sheetCategories.isNotEmpty || sheetSort != 'default')
+                      GestureDetector(
+                        onTap: () => setSheet(() {
+                          sheetCategories.clear();
+                          sheetSort = 'default';
+                        }),
+                        child: Text(
+                          'Reset',
+                          style: TextStyle(
+                            color: ctx.colors.accentColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+
+                // ── Category ─────────────────────────────────────────
+                if (availableCategories.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  _filterSheetLabel(ctx, Icons.category_outlined,
+                      'Category  •  select one or more'),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: availableCategories.map((c) {
+                      final isSel = sheetCategories.contains(c.id);
+                      return _filterSheetChip(
+                        ctx,
+                        label: c.name,
+                        icon: c.icon,
+                        isSelected: isSel,
+                        color: c.color,
+                        onTap: () => setSheet(() {
+                          if (isSel) {
+                            sheetCategories.remove(c.id);
+                          } else {
+                            sheetCategories.add(c.id);
+                          }
+                        }),
+                      );
+                    }).toList(),
+                  ),
+                ],
+
+                // ── Sort By ──────────────────────────────────────────
+                const SizedBox(height: 20),
+                _filterSheetLabel(ctx, Icons.sort_rounded, 'Sort By'),
+                const SizedBox(height: 10),
+                ...sortOptions.map((opt) {
+                  final (key, icon, label) = opt;
+                  final isSelected = sheetSort == key;
+                  return GestureDetector(
+                    onTap: () => setSheet(() => sheetSort = key),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? ctx.colors.accentColor.withValues(alpha: 0.1)
+                            : ctx.colors.cardGlassColor,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected
+                              ? ctx.colors.accentColor.withValues(alpha: 0.4)
+                              : ctx.colors.cardBorderColor,
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(icon,
+                              size: 16,
+                              color: isSelected
+                                  ? ctx.colors.accentColor
+                                  : ctx.colors.lightGreyColor),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: isSelected
+                                    ? ctx.colors.blackColors
+                                    : ctx.colors.lightGreyColor,
+                              ),
+                            ),
+                          ),
+                          if (isSelected)
+                            Icon(Icons.check_rounded,
+                                size: 16, color: ctx.colors.accentColor),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+
+                // ── Apply ─────────────────────────────────────────────
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _categoryFilters = Set.from(sheetCategories);
+                      _sortKey = sheetSort;
+                    });
+                    ClarityService.logGoalFilterApplied(
+                        filter: '${sheetCategories.join(",")}_$sheetSort');
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          ctx.colors.accentColor,
+                          ctx.colors.gradiantBottomColor,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ctx.colors.accentColor.withValues(alpha: 0.35),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Apply Filters',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _filterSheetLabel(BuildContext ctx, IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: ctx.colors.lightGreyColor),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            color: ctx.colors.lightGreyColor,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.6,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _filterSheetChip(
+    BuildContext ctx, {
+    required String label,
+    IconData? icon,
+    required bool isSelected,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? color.withValues(alpha: 0.12)
+              : ctx.colors.cardGlassColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? color.withValues(alpha: 0.5)
+                : ctx.colors.cardBorderColor,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon,
+                  size: 13,
+                  color: isSelected ? color : ctx.colors.lightGreyColor),
+              const SizedBox(width: 5),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight:
+                    isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? color : ctx.colors.lightGreyColor,
+              ),
+            ),
+            if (isSelected) ...[
+              const SizedBox(width: 4),
+              Icon(Icons.check_rounded, size: 11, color: color),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Goal list filtering + sorting ─────────────────────────────────────────
+  List<GoalModel> _filterGoals(List<GoalModel> goals) {
+    var result = goals.toList();
+
+    // Status
+    if (_statusFilter == 'pending') {
+      result = result.where((g) => _goalPct(g) < 100).toList();
+    } else if (_statusFilter == 'completed') {
+      result = result.where((g) => _goalPct(g) >= 100).toList();
+    }
+
+    // Category (multi-select — empty set means all)
+    if (_categoryFilters.isNotEmpty) {
+      result = result
+          .where((g) => _categoryFilters.contains(g.categoryId))
+          .toList();
+    }
+
+    // Sort
+    switch (_sortKey) {
+      case 'pct_asc':
+        result.sort((a, b) => _goalPct(a).compareTo(_goalPct(b)));
+      case 'pct_desc':
+        result.sort((a, b) => _goalPct(b).compareTo(_goalPct(a)));
+      case 'days_asc':
+        result.sort((a, b) => _goalDaysLeft(a).compareTo(_goalDaysLeft(b)));
+      case 'days_desc':
+        result.sort((a, b) => _goalDaysLeft(b).compareTo(_goalDaysLeft(a)));
+      case 'amount_asc':
+        result.sort((a, b) => _goalAmount(a).compareTo(_goalAmount(b)));
+      case 'amount_desc':
+        result.sort((a, b) => _goalAmount(b).compareTo(_goalAmount(a)));
+    }
+
+    return result;
+  }
+
+  double _goalPct(GoalModel g) {
+    final saved = double.tryParse(g.goalSavedAmount ?? '0') ?? 0;
+    final total = double.tryParse(g.goalAmount ?? '0') ?? 1;
+    return (saved / total) * 100;
+  }
+
+  int _goalDaysLeft(GoalModel g) {
+    if (g.goalDate == null || g.goalDate!.isEmpty) return 9999;
+    try {
+      final target = DateTime.parse('${g.goalDate} 00:00:00');
+      return target.difference(DateTime.now()).inDays;
+    } catch (_) {
+      return 9999;
+    }
+  }
+
+  double _goalAmount(GoalModel g) =>
+      double.tryParse(g.goalAmount ?? '0') ?? 0;
 
   Widget _greetingRow() {
     final username = HiveRepository.getUsername ?? "";

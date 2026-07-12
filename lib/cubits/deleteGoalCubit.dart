@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/data/repository/goalRepository.dart';
+import 'package:money_milestone/utils/analyticsService.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 abstract class DeleteGoalState {}
 
@@ -31,6 +33,10 @@ class DeleteGoalCubit extends Cubit<DeleteGoalState> {
       //
       await _goalRepository.deleteGoal(goalDetails: goalDetails, userId: userId);
       //
+      await AnalyticsService.logGoalDeleted(
+        goalName: goalDetails.goalName.toString(),
+      );
+      ClarityService.logGoalDeleted(goalName: goalDetails.goalName.toString());
       emit(DeleteGoalSuccess(goalDetails: goalDetails));
     } catch (e) {
       emit(DeleteGoalFailure(e.toString()));

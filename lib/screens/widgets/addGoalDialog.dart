@@ -9,12 +9,17 @@ import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/widgets/customCircularProgressIndicator.dart';
 import 'package:money_milestone/screens/widgets/customTextFormfield.dart';
+import 'package:money_milestone/utils/adService.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/utils/constant.dart';
 import 'package:money_milestone/utils/contextExtensions.dart';
+import 'package:money_milestone/data/model/goalCategoryModel.dart';
+import 'package:money_milestone/utils/goalCategories.dart';
 import 'package:money_milestone/utils/languageString.dart';
 import 'package:money_milestone/utils/stringExtensions.dart';
 import 'package:money_milestone/utils/utils.dart';
+import 'package:money_milestone/screens/widgets/categoryPickerSheet.dart';
 
 class AddGoalDialog extends StatefulWidget {
   final GoalModel? goalDetails;
@@ -36,6 +41,8 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String? selectedDate;
+  String? _selectedCategoryId;
+  GoalCategoryModel? _selectedCategory;
   bool get isEditing => widget.goalDetails != null;
 
   @override
@@ -47,6 +54,7 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
       _goalAchieveDateController.text = intl.DateFormat(Constant.dateFormat)
           .format(DateTime.parse("${widget.goalDetails!.goalDate!} 00:00:00"));
       selectedDate = widget.goalDetails!.goalDate;
+      _selectedCategoryId = widget.goalDetails!.categoryId;
     }
   }
 
@@ -82,7 +90,7 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -244,7 +252,14 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 14),
+
+                // Category
+                _buildLabel(Icons.category_outlined, 'Category'),
+                const SizedBox(height: 6),
+                _buildCategoryRow(),
+
+                const SizedBox(height: 24),
 
                 // ── CTA Buttons ─────────────────────────────────────
                 BlocConsumer<UpdateGoalCubit, UpdateGoalState>(
@@ -269,6 +284,12 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                               LanguageStrings.lblGoalAddedSuccessfully,
                               MessageType.success);
                           context.pop();
+                          // Show one ad after sheet close animation finishes (not on edits).
+                          if (!isEditing) {
+                            Future.delayed(const Duration(milliseconds: 800), () {
+                              AdService.instance.showPostGoalAd();
+                            });
+                          }
                         } else if (state is AddGoalFailure) {
                           Utils.showMessage(context, state.errorMessage,
                               MessageType.error);
@@ -345,6 +366,8 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                                                     goalSavedAmount: widget
                                                         .goalDetails!
                                                         .goalSavedAmount,
+                                                    categoryId:
+                                                        _selectedCategoryId,
                                                   ),
                                                   userId: userId);
                                         } else {
@@ -359,6 +382,8 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                                                         .trim(),
                                                 goalDate: selectedDate,
                                                 goalSavedAmount: "0",
+                                                categoryId:
+                                                    _selectedCategoryId,
                                               ),
                                               userId: userId);
                                         }
@@ -413,6 +438,65 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryRow() {
+    // Use the stored object directly (covers custom categories); fall back to
+    // GoalCategories.find for prebuilt categories set during edit-mode init.
+    final category =
+        _selectedCategory ?? GoalCategories.find(_selectedCategoryId);
+    return GestureDetector(
+      onTap: () async {
+        final picked = await showCategoryPicker(
+          context,
+          currentCategoryId: _selectedCategoryId,
+        );
+        if (picked != null) {
+          setState(() {
+            _selectedCategoryId = picked.id;
+            _selectedCategory = picked;
+          });
+          ClarityService.logCategoryAssigned(categoryName: picked.name);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: context.colors.isDarkMode
+              ? const Color(0xff1C2135)
+              : const Color(0xffF4F5FF),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: _selectedCategoryId != null
+                ? category.color.withValues(alpha: 0.4)
+                : context.colors.cardBorderColor,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: category.color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(category.icon, size: 16, color: category.color),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              category.name,
+              style: TextStyle(
+                color: context.colors.blackColors,
+                fontSize: 14,
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.chevron_right_rounded,
+                size: 18, color: context.colors.lightGreyColor),
+          ],
+        ),
       ),
     );
   }

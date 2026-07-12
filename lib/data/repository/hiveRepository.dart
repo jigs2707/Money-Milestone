@@ -5,6 +5,7 @@ class HiveRepository {
   static String userDetailBoxKey = "userDetailsBox";
   static String settingsBoxKey = "settingsBox";
   static String badgesBoxKey = "badgesBox";
+  static String notificationsBoxKey = "notificationsBox";
 
   ///--------------------------------- authStatusBox Keys
   ///
@@ -54,6 +55,7 @@ class HiveRepository {
     await Hive.openBox(userDetailBoxKey);
     await Hive.openBox(settingsBoxKey);
     await Hive.openBox(badgesBoxKey);
+    await Hive.openBox(notificationsBoxKey);
   }
 
   /// Returns true if this badge key has already been celebrated

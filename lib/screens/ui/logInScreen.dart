@@ -387,11 +387,11 @@ class _LogInScreenState extends State<LogInScreen> {
       child: StatefulBuilder(
         builder: (sheetCtx, setSheetState) {
           return Padding(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               left: 24,
               right: 24,
               top: 8,
-              bottom: MediaQuery.of(sheetCtx).viewInsets.bottom + 24,
+              bottom: 24,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

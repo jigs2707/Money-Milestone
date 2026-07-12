@@ -307,6 +307,7 @@ class _AddOrWithdrawMoneyDialogState extends State<AddOrWithdrawMoneyDialog> {
                                             userId: userId,
                                             goalId: widget.goalDetails.id
                                                 .toString(),
+                                            goal: widget.goalDetails,
                                           );
                                     },
                               child: Container(

@@ -16,6 +16,8 @@ import 'package:money_milestone/data/repository/transactionRepository.dart';
 import 'package:money_milestone/screens/widgets/addOrWithdrawMonetDialogWidget.dart';
 import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
 import 'package:money_milestone/screens/widgets/progressChartWidget.dart';
+import 'package:money_milestone/utils/adService.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/screens/widgets/customTweenAnimation.dart';
 import 'package:money_milestone/screens/widgets/customerShimmerWidget.dart';
 import 'package:money_milestone/screens/widgets/fadeSlideIn.dart';
@@ -74,6 +76,10 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
     if (_goalPercentage >= 100) {
       _confettiController.play();
     }
+
+    ClarityService.setScreen('GoalDetails');
+    ClarityService.logGoalViewed(
+        goalName: widget.goalDetails.goalName.toString());
 
     super.initState();
   }
@@ -350,8 +356,13 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                   double totalAmount =
                       widget.goalDetails.goalAmount.toString().toDouble();
                   _goalPercentage = (savedAmount * 100) / totalAmount;
-                  if (_goalPercentage >= 100) _confettiController.play();
+                  if (_goalPercentage >= 100) {
+                    _confettiController.play();
+                    ClarityService.logGoalCompleted(
+                        goalName: widget.goalDetails.goalName.toString());
+                  }
                   setState(() {});
+                  AdService.instance.showInterstitialOnTransaction();
                 }
               });
             },
@@ -401,6 +412,7 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                       widget.goalDetails.goalAmount.toString().toDouble();
                   _goalPercentage = (savedAmount * 100) / totalAmount;
                   setState(() {});
+                  AdService.instance.showInterstitialOnTransaction();
                 }
               });
             },
@@ -599,8 +611,11 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
     double remainingAmount =
         double.parse(widget.goalDetails.goalAmount.toString()) -
             double.parse(widget.goalDetails.goalSavedAmount ?? "0");
-    double saveAmountPerDay =
-        remainingDays > 0 ? remainingAmount / remainingDays : 0;
+
+    // Deadline passed or goal already met — nothing meaningful to suggest.
+    if (remainingDays <= 0 || remainingAmount <= 0) return const SizedBox.shrink();
+
+    double saveAmountPerDay = remainingAmount / remainingDays;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -836,6 +851,19 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                 parsedTransactions.add(TransactionModel.fromJson(data));
               }
 
+              // Build transaction rows, inserting a banner after every 4th entry
+              final txWidgets = <Widget>[];
+              for (int i = 0; i < parsedTransactions.length; i++) {
+                txWidgets.add(_getTransactionDetailsWidget(
+                    transactionDetails: parsedTransactions[i]));
+                if ((i + 1) % 4 == 0 && i + 1 < parsedTransactions.length) {
+                  txWidgets.add(const Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: BannerAdWidget(),
+                  ));
+                }
+              }
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -856,10 +884,7 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                       ),
                       const SizedBox(height: 10),
                     ] +
-                    List<Widget>.generate(parsedTransactions.length, (index) {
-                      return _getTransactionDetailsWidget(
-                          transactionDetails: parsedTransactions[index]);
-                    }),
+                    txWidgets,
               );
             } else {
               return const SizedBox.shrink();
@@ -956,6 +981,10 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final targetDate = DateTime.parse(
+        "${widget.goalDetails.goalDate.toString()} 00:00:00");
+    final daysLeft = daysBetween(fromDate: DateTime.now(), toDate: targetDate);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
@@ -1017,7 +1046,9 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                       child: _getGoalAchievementDateWidget(),
                     ),
                     const SizedBox(height: 12),
-                    if (_goalPercentage < 100) ...[
+                    // Show tips only when: goal unfinished (with float margin),
+                    // deadline is still in the future, and remaining amount > 0.
+                    if (_goalPercentage < 99.99 && daysLeft > 0) ...[
                       FadeSlideIn(
                         delay: const Duration(milliseconds: 220),
                         child: _getSmartSavingSuggestionsWidget(),
