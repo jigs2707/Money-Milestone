@@ -33,20 +33,25 @@ class _BannerAdWidget extends State<BannerAdWidget> {
   }
 
   Future<void> _createGoogleBannerAd() async {
-    final AnchoredAdaptiveBannerAdSize? size =
-        await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
-            MediaQuery.of(context).size.width.truncate());
+    if (!mounted) return;
 
-    if (size == null) {
-      print('Unable to get height of anchored banner.');
-      return;
-    }
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    final AnchoredAdaptiveBannerAdSize? adaptiveSize =
+        await AdSize.getLargeAnchoredAdaptiveBannerAdSize(
+            screenWidth.truncate());
+
+    if (!mounted) return;
+
+    // Fall back to standard banner if adaptive size is unavailable.
+    final AdSize adSize = adaptiveSize ?? AdSize.banner;
 
     final BannerAd banner = BannerAd(
       request: const AdRequest(),
       adUnitId: 'ca-app-pub-6830153046105033/1225127381',
       listener: BannerAdListener(
         onAdLoaded: (Ad ad) {
+          if (!mounted) return;
           print('$BannerAd loaded');
           setState(() {
             _googleBannerAd = ad as BannerAd;
@@ -54,11 +59,12 @@ class _BannerAdWidget extends State<BannerAdWidget> {
         },
         onAdFailedToLoad: (Ad ad, LoadAdError error) {
           print('$BannerAd failedToLoad: $error');
+          ad.dispose();
         },
         onAdOpened: (Ad ad) => print('$BannerAd onAdOpened'),
         onAdClosed: (Ad ad) => print('$BannerAd onAdClosed'),
       ),
-      size: size,
+      size: adSize,
     );
     banner.load();
   }

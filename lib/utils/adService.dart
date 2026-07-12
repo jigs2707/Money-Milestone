@@ -1,9 +1,6 @@
 // ignore_for_file: avoid_print
 
-import 'dart:math';
-
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:money_milestone/utils/appOpenAdManager.dart';
 import 'package:money_milestone/utils/clarityService.dart';
 
 /// Singleton that manages interstitial ad loading and display.
@@ -99,20 +96,8 @@ class AdService {
     }
   }
 
-  /// After adding a new goal: randomly picks app open or interstitial (one ad only).
-  /// Falls back to interstitial if the app open ad was already used this session.
+  /// After adding a new goal: shows interstitial if ready.
   void showPostGoalAd() {
-    if (_isCoolingDown) return;
-
-    if (Random().nextBool()) {
-      final showed = AppOpenAdManager.instance.showAdIfAvailable();
-      if (showed) {
-        // App open is showing — mark cooldown so a rapid interstitial can't also fire.
-        _lastShownAt = DateTime.now();
-        return;
-      }
-    }
-    // Either interstitial was chosen, or app open was unavailable.
     showInterstitialIfReady();
   }
 }

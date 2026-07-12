@@ -2,7 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/screens/widgets/badgeUnlockOverlay.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 class AllBadgesScreen extends StatelessWidget {
   final List<GoalModel> goals;
@@ -11,6 +14,9 @@ class AllBadgesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SchedulerBinding.instance.addPostFrameCallback(
+        (_) => ClarityService.setScreen('Badges'));
+
     final statuses = computeBadgeStatuses(goals);
     final unlockedCount = statuses.where((s) => s.unlocked).length;
     final total = statuses.length;
@@ -20,6 +26,7 @@ class AllBadgesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xff0B0F1A) : const Color(0xffF0F2FF),
+      bottomNavigationBar: const BannerAdWidget(),
       // ── Fixed gradient AppBar ────────────────────────────────────────
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),

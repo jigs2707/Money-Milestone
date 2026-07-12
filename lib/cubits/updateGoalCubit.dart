@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/data/repository/goalRepository.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 abstract class UpdateGoalState {}
 
@@ -34,6 +35,7 @@ class UpdateGoalCubit extends Cubit<UpdateGoalState> {
       await _goalRepository
           .updateGoal(goalDetails: goalDetails, userId: userId);
 
+      ClarityService.logGoalUpdated(goalName: goalDetails.goalName.toString());
       emit(UpdateGoalSuccess(goalData: goalDetails));
     } catch (e) {
       emit(UpdateGoalFailure(e.toString()));

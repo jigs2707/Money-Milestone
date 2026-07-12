@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 abstract class ThemeState {}
 
@@ -24,6 +25,7 @@ class ThemeCubit extends Cubit<ThemeState> {
   void toggleTheme() {
     final newValue = !isDarkMode;
     HiveRepository.setDarkMode = newValue;
+    ClarityService.logThemeToggled(isDark: newValue);
     emit(ThemeChanged(newValue));
   }
 }

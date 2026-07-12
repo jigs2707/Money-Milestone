@@ -13,6 +13,9 @@ class DatabaseHelper {
   static const lastDepositDateKey = "last_deposit_date";
 
   //
+  static const categoriesCollection = "categories";
+  static const goalCategoryKey = "category_id";
+
   static const goalAmountKey = "goal_amount";
   static const goalNameKey = "goal_name";
   static const goalDate = "goal_date";
@@ -31,4 +34,12 @@ class DatabaseHelper {
   static const latestVersionKey = "latest_version";
   static const isForceUpdateKey = "is_force_update";
   static const storeUrlKey = "store_url";
+
+  //--------------------------------- Session Tracking
+  static const appSessionsCollection = "app_sessions";
+  static const sessionUserId = "user_id";
+  static const sessionOpenedAt = "opened_at";
+  static const sessionDate = "date";       // "YYYY-MM-DD" for easy daily queries
+  static const sessionType = "type";       // "app_open" | "background_resume"
+  static const sessionPlatform = "platform"; // "android" | "ios"
 }

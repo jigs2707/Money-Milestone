@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:money_milestone/screens/widgets/backgroundWidget.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
+import 'package:money_milestone/screens/widgets/notificationPermissionSheet.dart';
 import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/utils/notificationPrefs.dart';
 import 'package:money_milestone/utils/notificationService.dart';
@@ -31,7 +32,15 @@ class _NotificationPreferencesScreenState
 
   Future<void> _checkPermission() async {
     final ok = await NotificationService.instance.areNotificationsEnabled();
-    if (mounted) setState(() => _permissionGranted = ok);
+    if (mounted) {
+      setState(() => _permissionGranted = ok);
+      if (!ok) {
+        // Small delay so the screen is fully visible before the sheet appears
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) showNotificationPermissionSheet(context);
+        });
+      }
+    }
   }
 
   Future<void> _reschedule() async {

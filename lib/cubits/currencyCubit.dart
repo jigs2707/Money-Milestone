@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/data/repository/userRepository.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/utils/currencies.dart';
 import 'package:money_milestone/utils/currencyService.dart';
 
@@ -44,6 +45,7 @@ class CurrencyCubit extends Cubit<CurrencyState> {
   Future<void> selectCurrency(CurrencyData data) async {
     CurrencyService.instance.update(data);
     emit(state.copyWith(currency: data));
+    ClarityService.logCurrencyChanged(code: data.code);
 
     final userId = HiveRepository.getUserId;
     if (userId == null || userId.isEmpty) return;

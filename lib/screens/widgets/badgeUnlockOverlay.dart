@@ -51,89 +51,156 @@ class BadgeStatus {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const List<BadgeInfo> allBadges = [
+  // ── Getting started ──────────────────────────────────────────────────────
   BadgeInfo(
     key: 'first_step',
     title: 'First Step',
     reason: 'Started a goal',
     fullReason: 'Create your very first savings goal to unlock this badge.',
-    celebration:
-        'Every big journey starts with a single step. You\'ve taken yours! 🚀',
+    celebration: 'Every big journey starts with a single step. You\'ve taken yours! 🚀',
     icon: Icons.flag_rounded,
     color: Color(0xff6C47FF),
-  ),
-
-  BadgeInfo(
-    key: 'halfway',
-    title: 'Halfway There',
-    reason: 'Reach 50% on a goal',
-    fullReason: 'Get any one of your goals to at least 50% completion.',
-    celebration:
-        'You\'re halfway to the finish line — the best is yet to come! 🎯',
-    icon: Icons.trending_up_rounded,
-    color: Color(0xffF5A623),
-  ),
-  BadgeInfo(
-    key: 'achiever',
-    title: 'Achiever',
-    reason: 'Complete a goal',
-    fullReason: 'Fully fund any one savings goal to 100%.',
-    celebration:
-        'You set a goal and CRUSHED it. You\'re a true money milestone achiever! 🏆',
-    icon: Icons.military_tech_rounded,
-    color: Color(0xffF472B6),
   ),
   BadgeInfo(
     key: 'goal_collector',
     title: 'Goal Collector',
     reason: 'Create 3+ goals',
     fullReason: 'Have 3 or more goals active at the same time.',
-    celebration:
-        'More goals = more wins! You\'re building a savings empire! 💼',
+    celebration: 'More goals = more wins! You\'re building a savings empire! 💼',
     icon: Icons.collections_bookmark_rounded,
     color: Color(0xff38BDF8),
   ),
-
   BadgeInfo(
     key: 'diversified',
     title: 'Diversified',
     reason: 'Manage 5+ goals',
     fullReason: 'Maintain 5 or more savings goals simultaneously.',
-    celebration:
-        'A true strategic saver! You\'ve mastered the art of goal diversification! 🎯',
+    celebration: 'A true strategic saver! You\'ve mastered the art of goal diversification! 🎯',
     icon: Icons.dashboard_rounded,
     color: Color(0xff22D3EE),
   ),
   BadgeInfo(
-    key: 'hat_trick',
-    title: 'Hat Trick',
-    reason: 'Complete 3 goals',
-    fullReason: 'Successfully complete 3 separate savings goals.',
-    celebration:
-        'Three goals down! You\'re on fire! Keep this incredible streak going! 🔥',
-    icon: Icons.workspace_premium_rounded,
-    color: Color(0xffFB7185),
+    key: 'all_in',
+    title: 'All In',
+    reason: 'Create 7+ goals',
+    fullReason: 'Have 7 or more savings goals active at the same time.',
+    celebration: 'Seven goals! You\'re building a full savings portfolio! 💼',
+    icon: Icons.hub_rounded,
+    color: Color(0xff0EA5E9),
   ),
 
+  // ── Progress milestones ───────────────────────────────────────────────────
   BadgeInfo(
-    key: 'early_bird',
-    title: 'Early Bird',
-    reason: 'Finish before deadline',
-    fullReason:
-        'Complete a savings goal before its target date to earn this badge.',
-    celebration:
-        'Ahead of schedule! Time is on your side when you\'re this disciplined! ⚡',
-    icon: Icons.alarm_on_rounded,
-    color: Color(0xff4ADE80),
+    key: 'halfway',
+    title: 'Halfway There',
+    reason: 'Reach 50% on a goal',
+    fullReason: 'Get any one of your goals to at least 50% completion.',
+    celebration: 'You\'re halfway to the finish line — the best is yet to come! 🎯',
+    icon: Icons.trending_up_rounded,
+    color: Color(0xffF5A623),
   ),
   BadgeInfo(
     key: 'on_a_roll',
     title: 'On a Roll',
     reason: '2 goals at 75%+',
     fullReason: 'Have 2 or more goals simultaneously above 75% progress.',
-    celebration:
-        'You\'re on a roll! Multiple finish lines are in sight! 🚀',
+    celebration: 'You\'re on a roll! Multiple finish lines are in sight! 🚀',
     icon: Icons.local_fire_department_rounded,
     color: Color(0xffF97316),
+  ),
+  BadgeInfo(
+    key: 'momentum',
+    title: 'Momentum',
+    reason: '3 goals at 75%+',
+    fullReason: 'Have 3 or more goals simultaneously above 75% progress.',
+    celebration: 'Unstoppable! Three goals nearly finished — you\'re a savings machine! 🔥',
+    icon: Icons.bolt_rounded,
+    color: Color(0xffEF4444),
+  ),
+  BadgeInfo(
+    key: 'multi_tasker',
+    title: 'Multi-Tasker',
+    reason: '3 goals in progress',
+    fullReason: 'Have 3 goals actively in progress (between 1% and 99%).',
+    celebration: 'Juggling multiple goals like a pro! You\'ve got this! 🎪',
+    icon: Icons.blur_on_rounded,
+    color: Color(0xff8B5CF6),
+  ),
+  BadgeInfo(
+    key: 'almost_there',
+    title: 'Almost There',
+    reason: 'Any goal at 90%+',
+    fullReason: 'Fund any goal to at least 90% of its target amount.',
+    celebration: 'So close you can almost touch it! Keep pushing — the finish line is near! 💪',
+    icon: Icons.timelapse_rounded,
+    color: Color(0xff10B981),
+  ),
+
+  // ── Completions ──────────────────────────────────────────────────────────
+  BadgeInfo(
+    key: 'achiever',
+    title: 'Achiever',
+    reason: 'Complete a goal',
+    fullReason: 'Fully fund any one savings goal to 100%.',
+    celebration: 'You set a goal and CRUSHED it. You\'re a true money milestone achiever! 🏆',
+    icon: Icons.military_tech_rounded,
+    color: Color(0xffF472B6),
+  ),
+  BadgeInfo(
+    key: 'double_win',
+    title: 'Double Win',
+    reason: 'Complete 2 goals',
+    fullReason: 'Successfully complete 2 separate savings goals.',
+    celebration: 'Two goals conquered! Your financial discipline is showing! ✌️',
+    icon: Icons.done_all_rounded,
+    color: Color(0xff34D399),
+  ),
+  BadgeInfo(
+    key: 'hat_trick',
+    title: 'Hat Trick',
+    reason: 'Complete 3 goals',
+    fullReason: 'Successfully complete 3 separate savings goals.',
+    celebration: 'Three goals down! You\'re on fire! Keep this incredible streak going! 🔥',
+    icon: Icons.workspace_premium_rounded,
+    color: Color(0xffFB7185),
+  ),
+  BadgeInfo(
+    key: 'finisher',
+    title: 'Finisher',
+    reason: 'Complete 5 goals',
+    fullReason: 'Successfully complete 5 separate savings goals.',
+    celebration: 'FIVE goals completed! You don\'t just start things — you finish them! 🥇',
+    icon: Icons.emoji_events_rounded,
+    color: Color(0xffF59E0B),
+  ),
+  BadgeInfo(
+    key: 'grand_slam',
+    title: 'Grand Slam',
+    reason: 'Complete 10 goals',
+    fullReason: 'Successfully complete 10 separate savings goals.',
+    celebration: 'TEN goals! You\'ve achieved legendary status in personal finance! 👑',
+    icon: Icons.verified_rounded,
+    color: Color(0xff6C47FF),
+  ),
+
+  // ── Special ──────────────────────────────────────────────────────────────
+  BadgeInfo(
+    key: 'early_bird',
+    title: 'Early Bird',
+    reason: 'Finish before deadline',
+    fullReason: 'Complete a savings goal before its target date to earn this badge.',
+    celebration: 'Ahead of schedule! Time is on your side when you\'re this disciplined! ⚡',
+    icon: Icons.alarm_on_rounded,
+    color: Color(0xff4ADE80),
+  ),
+  BadgeInfo(
+    key: 'dedicated',
+    title: 'Dedicated',
+    reason: 'Complete all your goals',
+    fullReason: 'Have at least 2 goals and achieve 100% on every single one.',
+    celebration: 'Every single goal — DONE. That\'s the definition of dedication! 🌟',
+    icon: Icons.stars_rounded,
+    color: Color(0xffFBBF24),
   ),
 ];
 
@@ -142,67 +209,42 @@ const List<BadgeInfo> allBadges = [
 // ─────────────────────────────────────────────────────────────────────────────
 
 List<BadgeStatus> computeBadgeStatuses(List<GoalModel> goals) {
-
-  final int completedCount = goals.where((g) {
+  double pct(GoalModel g) {
     final saved = double.tryParse(g.goalSavedAmount?.toString() ?? '0') ?? 0;
     final total = double.tryParse(g.goalAmount?.toString() ?? '1') ?? 1;
-    return total > 0 && saved >= total;
+    return total > 0 ? saved / total : 0.0;
+  }
+
+  final int completedCount = goals.where((g) => pct(g) >= 1.0).length;
+  final double maxPct = goals.isEmpty ? 0 : goals.map(pct).reduce((a, b) => a > b ? a : b);
+  final int count75 = goals.where((g) => pct(g) >= 0.75).length;
+  final int inProgress = goals.where((g) {
+    final p = pct(g);
+    return p > 0.01 && p < 1.0;
   }).length;
+  final double maxPctForAlmost = maxPct;
 
-  final double maxGoalPct = goals.isEmpty
-      ? 0
-      : goals.map((g) {
-          final saved =
-              double.tryParse(g.goalSavedAmount?.toString() ?? '0') ?? 0;
-          final total =
-              double.tryParse(g.goalAmount?.toString() ?? '1') ?? 1;
-          return total > 0 ? saved / total : 0.0;
-        }).reduce((a, b) => a > b ? a : b);
-
-
-  final int count75pct = goals.where((g) {
-    final saved = double.tryParse(g.goalSavedAmount?.toString() ?? '0') ?? 0;
-    final total = double.tryParse(g.goalAmount?.toString() ?? '1') ?? 1;
-    return total > 0 && saved / total >= 0.75;
-  }).length;
-
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
   final bool hasEarlyBird = goals.any((g) {
-    final saved = double.tryParse(g.goalSavedAmount?.toString() ?? '0') ?? 0;
-    final total = double.tryParse(g.goalAmount?.toString() ?? '1') ?? 1;
-    if (total <= 0 || saved < total) return false;
+    if (pct(g) < 1.0) return false;
     final date = _parseGoalDate(g.goalDate);
-    return date != null && !DateTime.now().isAfter(date);
+    if (date == null) return false;
+    final targetDay = DateTime(date.year, date.month, date.day);
+    return today.isBefore(targetDay); // strictly before deadline
   });
+
+  final bool hasDedicated =
+      goals.length >= 2 && completedCount == goals.length;
 
   return allBadges.map((badge) {
     switch (badge.key) {
       case 'first_step':
-        final prog = goals.isNotEmpty ? 1.0 : 0.0;
         return BadgeStatus(
             info: badge,
             unlocked: goals.isNotEmpty,
-            progress: prog,
+            progress: goals.isNotEmpty ? 1.0 : 0.0,
             progressLabel: '${goals.length.clamp(0, 1)} / 1 goal created');
-
-
-
-      case 'halfway':
-        final best = (maxGoalPct * 100).clamp(0, 50);
-        return BadgeStatus(
-            info: badge,
-            unlocked: maxGoalPct >= 0.5,
-            progress: (maxGoalPct / 0.5).clamp(0, 1).toDouble(),
-            progressLabel: '${best.toStringAsFixed(0)}% / 50%');
-
-      case 'achiever':
-        return BadgeStatus(
-            info: badge,
-            unlocked: completedCount >= 1,
-            progress:
-                completedCount >= 1 ? 1.0 : maxGoalPct.clamp(0, 1).toDouble(),
-            progressLabel: completedCount >= 1
-                ? 'Goal completed! 🎉'
-                : '${(maxGoalPct * 100).clamp(0, 100).toStringAsFixed(0)}% / 100%');
 
       case 'goal_collector':
         return BadgeStatus(
@@ -211,7 +253,6 @@ List<BadgeStatus> computeBadgeStatuses(List<GoalModel> goals) {
             progress: (goals.length / 3).clamp(0, 1).toDouble(),
             progressLabel: '${goals.length.clamp(0, 3)} / 3 goals');
 
-
       case 'diversified':
         return BadgeStatus(
             info: badge,
@@ -219,13 +260,84 @@ List<BadgeStatus> computeBadgeStatuses(List<GoalModel> goals) {
             progress: (goals.length / 5).clamp(0, 1).toDouble(),
             progressLabel: '${goals.length.clamp(0, 5)} / 5 goals');
 
+      case 'all_in':
+        return BadgeStatus(
+            info: badge,
+            unlocked: goals.length >= 7,
+            progress: (goals.length / 7).clamp(0, 1).toDouble(),
+            progressLabel: '${goals.length.clamp(0, 7)} / 7 goals');
+
+      case 'halfway':
+        return BadgeStatus(
+            info: badge,
+            unlocked: maxPct >= 0.5,
+            progress: (maxPct / 0.5).clamp(0, 1).toDouble(),
+            progressLabel: '${(maxPct * 100).clamp(0, 50).toStringAsFixed(0)}% / 50%');
+
+      case 'on_a_roll':
+        return BadgeStatus(
+            info: badge,
+            unlocked: count75 >= 2,
+            progress: (count75 / 2).clamp(0, 1).toDouble(),
+            progressLabel: '${count75.clamp(0, 2)} / 2 goals at 75%+');
+
+      case 'momentum':
+        return BadgeStatus(
+            info: badge,
+            unlocked: count75 >= 3,
+            progress: (count75 / 3).clamp(0, 1).toDouble(),
+            progressLabel: '${count75.clamp(0, 3)} / 3 goals at 75%+');
+
+      case 'multi_tasker':
+        return BadgeStatus(
+            info: badge,
+            unlocked: inProgress >= 3,
+            progress: (inProgress / 3).clamp(0, 1).toDouble(),
+            progressLabel: '${inProgress.clamp(0, 3)} / 3 goals in progress');
+
+      case 'almost_there':
+        return BadgeStatus(
+            info: badge,
+            unlocked: maxPctForAlmost >= 0.9,
+            progress: (maxPctForAlmost / 0.9).clamp(0, 1).toDouble(),
+            progressLabel: '${(maxPctForAlmost * 100).clamp(0, 90).toStringAsFixed(0)}% / 90%');
+
+      case 'achiever':
+        return BadgeStatus(
+            info: badge,
+            unlocked: completedCount >= 1,
+            progress: completedCount >= 1 ? 1.0 : maxPct.clamp(0, 1).toDouble(),
+            progressLabel: completedCount >= 1
+                ? 'Goal completed! 🎉'
+                : '${(maxPct * 100).toStringAsFixed(0)}% / 100%');
+
+      case 'double_win':
+        return BadgeStatus(
+            info: badge,
+            unlocked: completedCount >= 2,
+            progress: (completedCount / 2).clamp(0, 1).toDouble(),
+            progressLabel: '${completedCount.clamp(0, 2)} / 2 goals completed');
+
       case 'hat_trick':
         return BadgeStatus(
             info: badge,
             unlocked: completedCount >= 3,
             progress: (completedCount / 3).clamp(0, 1).toDouble(),
-            progressLabel: '$completedCount / 3 goals completed');
+            progressLabel: '${completedCount.clamp(0, 3)} / 3 goals completed');
 
+      case 'finisher':
+        return BadgeStatus(
+            info: badge,
+            unlocked: completedCount >= 5,
+            progress: (completedCount / 5).clamp(0, 1).toDouble(),
+            progressLabel: '${completedCount.clamp(0, 5)} / 5 goals completed');
+
+      case 'grand_slam':
+        return BadgeStatus(
+            info: badge,
+            unlocked: completedCount >= 10,
+            progress: (completedCount / 10).clamp(0, 1).toDouble(),
+            progressLabel: '${completedCount.clamp(0, 10)} / 10 goals completed');
 
       case 'early_bird':
         return BadgeStatus(
@@ -236,12 +348,16 @@ List<BadgeStatus> computeBadgeStatuses(List<GoalModel> goals) {
                 ? 'Completed before deadline! ⚡'
                 : 'Finish a goal before its target date');
 
-      case 'on_a_roll':
+      case 'dedicated':
         return BadgeStatus(
             info: badge,
-            unlocked: count75pct >= 2,
-            progress: (count75pct / 2).clamp(0, 1).toDouble(),
-            progressLabel: '${count75pct.clamp(0, 2)} / 2 goals at 75%+');
+            unlocked: hasDedicated,
+            progress: goals.isEmpty
+                ? 0
+                : (completedCount / goals.length).clamp(0, 1).toDouble(),
+            progressLabel: hasDedicated
+                ? 'All goals completed! 🌟'
+                : '$completedCount / ${goals.length} goals completed');
 
       default:
         return BadgeStatus(
@@ -253,10 +369,8 @@ List<BadgeStatus> computeBadgeStatuses(List<GoalModel> goals) {
 DateTime? _parseGoalDate(String? dateStr) {
   if (dateStr == null || dateStr.isEmpty) return null;
   try {
-    final parts = dateStr.split('/');
-    if (parts.length != 3) return null;
-    return DateTime(
-        int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+    // Dates are stored as yyyy-MM-dd
+    return DateTime.parse('$dateStr 00:00:00');
   } catch (_) {
     return null;
   }

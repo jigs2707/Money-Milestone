@@ -4,7 +4,9 @@ import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/ui/allBadgesScreen.dart';
 import 'package:money_milestone/screens/widgets/badgeUnlockOverlay.dart';
+import 'package:money_milestone/utils/adService.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
+import 'package:money_milestone/utils/clarityService.dart';
 
 class BadgesShelfWidget extends StatefulWidget {
   final List<GoalModel> goals;
@@ -43,7 +45,12 @@ class _BadgesShelfWidgetState extends State<BadgesShelfWidget> {
     }
 
     if (toShow.isNotEmpty && mounted) {
+      for (final badge in toShow) {
+        ClarityService.logBadgeUnlocked(badgeName: badge.title);
+      }
       await showBadgeUnlockCelebration(context, toShow);
+      // Interstitial after the celebration dialog is dismissed
+      if (mounted) AdService.instance.showInterstitialIfReady();
     }
   }
 
@@ -136,13 +143,14 @@ class _BadgesShelfWidgetState extends State<BadgesShelfWidget> {
     // Show first 4 in shelf; user taps "See All" for full list
     final shelfStatuses = statuses.take(4).toList();
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 20),
-          decoration: BoxDecoration(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
             color: context.colors.cardGlassColor,
             border: Border.all(
                 color: context.colors.cardBorderColor, width: 1.2),
@@ -298,6 +306,7 @@ class _BadgesShelfWidgetState extends State<BadgesShelfWidget> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

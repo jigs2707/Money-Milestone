@@ -13,7 +13,6 @@ import 'package:money_milestone/data/repository/userRepository.dart';
 import 'package:money_milestone/firebase_options.dart';
 import 'package:money_milestone/utils/adService.dart';
 import 'package:money_milestone/utils/analyticsService.dart';
-import 'package:money_milestone/utils/appOpenAdManager.dart';
 import 'package:money_milestone/utils/sessionTracker.dart';
 import 'package:money_milestone/utils/constant.dart';
 import 'package:flutter/material.dart';
@@ -44,10 +43,9 @@ void main() async {
   // Initialize notification service
   await NotificationService.instance.init();
 
-  // Initialize AdMob, then pre-load interstitial and app open ads
+  // Initialize AdMob and pre-load interstitial ad
   await MobileAds.instance.initialize();
   AdService.instance.initialize();
-  AppOpenAdManager.instance.init();
 
   // Register session tracker (listens for background resumes)
   SessionTracker.instance.init();
@@ -143,3 +141,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
