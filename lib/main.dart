@@ -1,6 +1,7 @@
 import 'package:clarity_flutter/clarity_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
 import 'package:money_milestone/app/routes.dart';
@@ -12,6 +13,7 @@ import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/data/repository/userRepository.dart';
 import 'package:money_milestone/firebase_options.dart';
 import 'package:money_milestone/utils/adService.dart';
+import 'package:money_milestone/utils/supabaseConfig.dart';
 import 'package:money_milestone/utils/analyticsService.dart';
 import 'package:money_milestone/utils/sessionTracker.dart';
 import 'package:money_milestone/utils/constant.dart';
@@ -30,6 +32,12 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+
+  //initialize supabase
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    anonKey: SupabaseConfig.anonKey, // ignore: deprecated_member_use
+  );
 
   //initialize Hive
   Hive.init((await getApplicationDocumentsDirectory()).path);

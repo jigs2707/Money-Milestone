@@ -72,6 +72,10 @@ class HiveRepository {
   static Future<void> markBadgeSeen(String badgeKey) =>
       Hive.box(badgesBoxKey).put(badgeKey, true);
 
+  /// Returns all badge keys that have been seen locally
+  static Set<String> get allSeenBadgeKeys =>
+      Hive.box(badgesBoxKey).keys.cast<String>().toSet();
+
   /// Resets all badge celebration data (useful for testing)
   static Future<void> clearBadges() =>
       Hive.box(badgesBoxKey).clear();

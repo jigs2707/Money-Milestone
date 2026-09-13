@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:money_milestone/data/model/goalModal.dart';
+import 'package:money_milestone/data/repository/badgeRepository.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/ui/allBadgesScreen.dart';
 import 'package:money_milestone/screens/widgets/badgeUnlockOverlay.dart';
@@ -34,13 +35,17 @@ class _BadgesShelfWidgetState extends State<BadgesShelfWidget> {
 
   Future<void> _checkNewBadges() async {
     if (!mounted) return;
+
+    final userId = HiveRepository.getUserId ?? '';
+    await BadgeRepository.instance.syncFromSupabase(userId);
+
     final statuses = computeBadgeStatuses(widget.goals);
 
     final List<BadgeInfo> toShow = [];
     for (final s in statuses) {
       if (s.unlocked && !HiveRepository.isBadgeSeen(s.info.key)) {
         toShow.add(s.info);
-        await HiveRepository.markBadgeSeen(s.info.key);
+        await BadgeRepository.instance.markUnlocked(userId, s.info.key);
       }
     }
 
@@ -49,7 +54,6 @@ class _BadgesShelfWidgetState extends State<BadgesShelfWidget> {
         ClarityService.logBadgeUnlocked(badgeName: badge.title);
       }
       await showBadgeUnlockCelebration(context, toShow);
-      // Interstitial after the celebration dialog is dismissed
       if (mounted) AdService.instance.showInterstitialIfReady();
     }
   }

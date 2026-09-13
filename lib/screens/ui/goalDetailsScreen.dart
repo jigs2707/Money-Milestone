@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart' hide Constant;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:money_milestone/screens/widgets/backgroundWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,6 @@ import 'package:money_milestone/cubits/updateGoalCubit.dart';
 import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/data/model/transactionModel.dart';
 import 'package:money_milestone/data/repository/goalRepository.dart';
-import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/data/repository/transactionRepository.dart';
 import 'package:money_milestone/screens/widgets/addOrWithdrawMonetDialogWidget.dart';
 import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
@@ -52,20 +51,17 @@ class GoalDetailsScreen extends StatefulWidget {
 
 class _GoalDetailsScreenState extends State<GoalDetailsScreen>
     with SingleTickerProviderStateMixin {
-  Stream<QuerySnapshot>? _transactionsStream;
+  Stream<List<Map<String, dynamic>>>? _transactionsStream;
 
   double _goalPercentage = 0.0;
   late ConfettiController _confettiController;
 
   @override
   void initState() {
-    String userId = HiveRepository.getUserId ?? "";
-
-    _transactionsStream = FirebaseFirestore.instance
-        .collection(DatabaseHelper.transactionsCollectionName)
-        .doc(userId)
-        .collection(widget.goalDetails.id.toString())
-        .snapshots();
+    _transactionsStream = Supabase.instance.client
+        .from(DatabaseHelper.transactionsCollectionName)
+        .stream(primaryKey: ['id'])
+        .eq('goal_id', widget.goalDetails.id.toString());
 
     double savedAmount = (widget.goalDetails.goalSavedAmount ?? "0").toDouble();
     double totalAmount = widget.goalDetails.goalAmount.toString().toDouble();
@@ -840,14 +836,11 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
             return Text(LanguageStrings.lblSomethingWentWrong);
           }
           if (snapshot.hasData) {
-            List<DocumentSnapshot?> transactionData = snapshot.data!.docs;
+            List<Map<String, dynamic>> transactionData = snapshot.data!;
 
             if (transactionData.isNotEmpty) {
               List<TransactionModel> parsedTransactions = [];
-              for (var t in transactionData) {
-                Map<String, dynamic> data =
-                    Map.from(t!.data() as Map<String, dynamic>);
-                data["id"] = t.id;
+              for (var data in transactionData) {
                 parsedTransactions.add(TransactionModel.fromJson(data));
               }
 

@@ -1,6 +1,6 @@
 // ignore_for_file: file_names, use_build_context_synchronously
 
-import 'package:cloud_firestore/cloud_firestore.dart' hide Constant;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:money_milestone/app/routes.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
@@ -82,16 +82,17 @@ class _SplashScreenState extends State<SplashScreen>
   // ── Version check logic ─────────────────────────────────────────────────
   Future<void> _checkVersionAndNavigate() async {
     if (!mounted) return;
-
+return;
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection(DatabaseHelper.appConfigCollectionName)
-          .doc(DatabaseHelper.appConfigDocName)
-          .get();
+      final doc = await Supabase.instance.client
+          .from(DatabaseHelper.appConfigCollectionName)
+          .select()
+          .eq('id', DatabaseHelper.appConfigDocName)
+          .maybeSingle();
 
       print("doc is $doc");
-      if (doc.exists) {
-        final data = doc.data()!;
+      if (doc != null) {
+        final data = doc;
         final String latestVersion =
             data[DatabaseHelper.latestVersionKey] ?? Constant.appVersion;
         final bool isForceUpdate =

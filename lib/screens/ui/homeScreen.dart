@@ -2,7 +2,7 @@
 
 import 'dart:ui';
 
-import 'package:cloud_firestore/cloud_firestore.dart' hide Constant;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -61,7 +61,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Stream<QuerySnapshot>? _goalsStream;
+  Stream<List<Map<String, dynamic>>>? _goalsStream;
   late final CategoryCubit _categoryCubit;
   String _statusFilter = 'all';
   Set<String> _categoryFilters = {};
@@ -70,18 +70,15 @@ class _HomeScreenState extends State<HomeScreen> {
   bool get _hasActiveFilter =>
       _categoryFilters.isNotEmpty || _sortKey != 'default';
 
-  final databaseReference = FirebaseFirestore.instance;
-
   @override
   void initState() {
     super.initState();
     String userId = HiveRepository.getUserId ?? "";
 
-    _goalsStream = FirebaseFirestore.instance
-        .collection(DatabaseHelper.goalsCollectionName)
-        .doc(userId)
-        .collection(userId)
-        .snapshots();
+    _goalsStream = Supabase.instance.client
+        .from(DatabaseHelper.goalsCollectionName)
+        .stream(primaryKey: ['id'])
+        .eq('user_id', userId);
 
     _categoryCubit = CategoryCubit(CategoryRepository(), userId);
 
@@ -638,20 +635,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   StreamBuilder(
                     stream: _goalsStream,
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.active) {
-                        if (snapshot.hasError) {
-                          return _errorWidget();
-                        }
-                        if (snapshot.hasData) {
-                          List<DocumentSnapshot?> goalsData =
-                              snapshot.data!.docs;
+                      if (snapshot.hasData) {
+                          List<Map<String, dynamic>> goalsData =
+                              snapshot.data!;
 
                           if (goalsData.isNotEmpty) {
                             List<GoalModel> parsedGoals = [];
-                            for (var doc in goalsData) {
-                              Map<String, dynamic> data =
-                                  Map.from(doc!.data() as Map<String, dynamic>);
-                              data["id"] = doc.id;
+                            for (var data in goalsData) {
                               parsedGoals.add(GoalModel.fromJson(data));
                             }
                             // Reschedule goal deadline notifications whenever goals update
@@ -771,11 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           } else {
                             return _setYourFirstGoalWidget();
                           }
-                        } else {
-                          return _setYourFirstGoalWidget();
-                        }
-                      } else if (snapshot.connectionState ==
-                          ConnectionState.waiting) {
+                      } else if (snapshot.connectionState == ConnectionState.waiting) {
                         return Column(
                             children: List.generate(
                                 Constant.numberOfShimmerLoadingWidget,
@@ -784,8 +770,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       margin:
                                           const EdgeInsets.symmetric(vertical: 7),
                                     )).toList());
+                      } else if (snapshot.hasError) {
+                        return _errorWidget();
                       } else {
-                        return const SizedBox.shrink();
+                        return _setYourFirstGoalWidget();
                       }
                     },
                   ),
@@ -1279,15 +1267,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
 
         // ── Streak Pill (taps to profile) ─────────────────────────
-        StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection(DatabaseHelper.usersCollectionName)
-              .doc(HiveRepository.getUserId ?? "")
-              .snapshots(),
+        StreamBuilder<List<Map<String, dynamic>>>(
+          stream: Supabase.instance.client
+              .from(DatabaseHelper.usersCollectionName)
+              .stream(primaryKey: ['id'])
+              .eq('id', HiveRepository.getUserId ?? ''),
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data!.exists) {
-              final data =
-                  snapshot.data!.data() as Map<String, dynamic>? ?? {};
+            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+              final data = snapshot.data!.first;
               final int streak = data[DatabaseHelper.currentStreakKey] ?? 0;
               if (streak > 0) {
                 return GestureDetector(

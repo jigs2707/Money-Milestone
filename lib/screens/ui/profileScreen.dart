@@ -2,7 +2,8 @@
 
 import 'dart:ui';
 
-import 'package:cloud_firestore/cloud_firestore.dart' hide Constant;
+import 'package:money_milestone/data/repository/badgeRepository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -131,14 +132,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           // Content
           SafeArea(
-            child: StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection(DatabaseHelper.usersCollectionName)
-                  .doc(userId)
-                  .snapshots(),
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: Supabase.instance.client
+                  .from(DatabaseHelper.usersCollectionName)
+                  .stream(primaryKey: ['id'])
+                  .eq('id', userId),
               builder: (context, snap) {
-                final data = (snap.hasData && snap.data!.exists)
-                    ? snap.data!.data() as Map<String, dynamic>
+                final data = (snap.hasData && snap.data!.isNotEmpty)
+                    ? snap.data!.first
                     : <String, dynamic>{};
 
                 final int streak = data[DatabaseHelper.currentStreakKey] ?? 0;
@@ -925,6 +926,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.of(context).pop(); // close profile
                 ClarityService.logLogout();
                 AuthRepository().signOut().then((_) {
+                  BadgeRepository.instance.resetSync();
                   HiveRepository.clearBoxValues(
                       boxName: HiveRepository.authStatusBoxKey);
                   HiveRepository.clearBoxValues(

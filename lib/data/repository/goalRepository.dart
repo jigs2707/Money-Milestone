@@ -1,57 +1,38 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/utils/databaseHelper.dart';
 
 class GoalRepository {
-//
-  final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+  final _db = Supabase.instance.client;
 
-  Future<void> addGoal(
-      {required GoalModel goalDetails, required String userId}) async {
+  Future<void> addGoal({required GoalModel goalDetails, required String userId}) async {
     try {
-      //
-      await _firebaseFirestore
-          .collection(DatabaseHelper.goalsCollectionName)
-          .doc(userId)
-          .collection(userId)
-          .add(goalDetails.toJson());
-      //
+      await _db.from(DatabaseHelper.goalsCollectionName).insert({
+        'user_id': userId,
+        ...goalDetails.toJson(),
+      });
     } catch (e) {
       throw e.toString();
     }
   }
 
-  Future<void> updateGoal({
-    required GoalModel goalDetails,
-    required String userId,
-  }) async {
+  Future<void> updateGoal({required GoalModel goalDetails, required String userId}) async {
     try {
-      //
-      await _firebaseFirestore
-          .collection(DatabaseHelper.goalsCollectionName)
-          .doc(userId)
-          .collection(userId)
-          .doc(goalDetails.id)
-          .update(goalDetails.toJson());
-      //
+      await _db
+          .from(DatabaseHelper.goalsCollectionName)
+          .update(goalDetails.toJson())
+          .eq('id', goalDetails.id!);
     } catch (e) {
       throw e.toString();
     }
   }
 
-  Future<void> deleteGoal({
-    required GoalModel goalDetails,
-    required String userId,
-  }) async {
+  Future<void> deleteGoal({required GoalModel goalDetails, required String userId}) async {
     try {
-      //
-      await _firebaseFirestore
-          .collection(DatabaseHelper.goalsCollectionName)
-          .doc(userId)
-          .collection(userId)
-          .doc(goalDetails.id)
-          .delete();
-      //
+      await _db
+          .from(DatabaseHelper.goalsCollectionName)
+          .delete()
+          .eq('id', goalDetails.id!);
     } catch (e) {
       throw e.toString();
     }

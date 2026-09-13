@@ -2,37 +2,34 @@
 
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/utils/databaseHelper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Tracks user app-open events in Firestore.
+/// Tracks user app-open events in Supabase.
 ///
 /// Two event types are recorded:
 ///   • "app_open"           – first HomeScreen initState after launch / re-login
 ///   • "background_resume"  – user brings the app back from the background
 ///
-/// Firestore path: app_sessions/{auto-id}
-/// Fields: user_id, opened_at, date (YYYY-MM-DD), type, platform
+/// Supabase path: app_sessions table
+/// Fields: user_id, opened_at (auto), date (YYYY-MM-DD), type, platform
 class SessionTracker with WidgetsBindingObserver {
   SessionTracker._();
   static final SessionTracker instance = SessionTracker._();
 
   bool _initialized = false;
 
-  /// Call once in main() to register the lifecycle observer.
   void init() {
     if (_initialized) return;
     _initialized = true;
     WidgetsBinding.instance.addObserver(this);
   }
 
-  /// Call from HomeScreen.initState() — fires on every authenticated app open.
   Future<void> logAppOpen() => _write(type: 'app_open');
 
-  /// Fires automatically when the user brings the app back from background.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -50,14 +47,14 @@ class SessionTracker with WidgetsBindingObserver {
           '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
       final platform = Platform.isAndroid ? 'android' : 'ios';
 
-      await FirebaseFirestore.instance
-          .collection(DatabaseHelper.appSessionsCollection)
-          .add({
+      await Supabase.instance.client
+          .from(DatabaseHelper.appSessionsCollection)
+          .insert({
         DatabaseHelper.sessionUserId: userId,
-        DatabaseHelper.sessionOpenedAt: FieldValue.serverTimestamp(),
         DatabaseHelper.sessionDate: date,
         DatabaseHelper.sessionType: type,
         DatabaseHelper.sessionPlatform: platform,
+        // opened_at defaults to now() in the database
       });
 
       if (type == 'app_open') {

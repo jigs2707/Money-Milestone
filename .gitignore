@@ -25,3 +25,13 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+.tokensave
+
+# OS
+.DS_Store
+
+# Node
+node_modules/
+
+# Secrets
+migration/serviceAccountKey.json

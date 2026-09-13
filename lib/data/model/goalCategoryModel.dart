@@ -17,22 +17,21 @@ class GoalCategoryModel {
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        'codePoint': icon.codePoint,
-        'fontFamily': icon.fontFamily ?? 'MaterialIcons',
-        'colorValue': color.toARGB32(),
-        'isCustom': isCustom,
+        'code_point': icon.codePoint,
+        'font_family': icon.fontFamily ?? 'MaterialIcons',
+        'color_value': color.toARGB32(),
+        'is_custom': isCustom,
       };
 
-  factory GoalCategoryModel.fromFirestore(
-          String id, Map<String, dynamic> json) =>
+  factory GoalCategoryModel.fromMap(Map<String, dynamic> json) =>
       GoalCategoryModel(
-        id: id,
+        id: json['id'] as String,
         name: json['name'] as String,
         icon: IconData(
-          json['codePoint'] as int,
-          fontFamily: json['fontFamily'] as String? ?? 'MaterialIcons',
+          json['code_point'] as int,
+          fontFamily: json['font_family'] as String? ?? 'MaterialIcons',
         ),
-        color: Color(json['colorValue'] as int),
-        isCustom: json['isCustom'] as bool? ?? true,
+        color: Color(json['color_value'] as int),
+        isCustom: json['is_custom'] as bool? ?? true,
       );
 }

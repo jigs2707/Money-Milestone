@@ -1,0 +1,12 @@
+{
+  "name": "money-milestone-migration",
+  "version": "1.0.0",
+  "description": "One-time Firestore → Supabase data migration",
+  "scripts": {
+    "migrate": "node migrate.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "firebase-admin": "^12.0.0"
+  }
+}
