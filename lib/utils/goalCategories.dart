@@ -106,6 +106,15 @@ class GoalCategories {
     Icons.volunteer_activism_rounded,
   ];
 
+  /// Resolves a stored code point to a const icon so release builds can
+  /// tree-shake the icon font. Falls back to the "Other" icon.
+  static IconData iconFromCodePoint(int codePoint) {
+    for (final icon in [...prebuilt.map((c) => c.icon), ...availableIcons]) {
+      if (icon.codePoint == codePoint) return icon;
+    }
+    return Icons.work_rounded;
+  }
+
   // ── Color palette for custom categories ────────────────────────────────────
   static const List<Color> availableColors = [
     Color(0xff6C47FF),

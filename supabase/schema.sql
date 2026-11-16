@@ -76,6 +76,17 @@ create table if not exists public.user_badges (
   primary key (user_id, badge_key)
 );
 
+-- Realtime DELETE events
+-- Supabase evaluates a stream's filter against the row's OLD image. Under the
+-- default replica identity that image contains only the primary key, so a
+-- stream filtered on any other column never receives the delete and the row
+-- lingers in the UI until a reload. FULL puts every column in the old image.
+-- Needed by: goals (.eq user_id), transactions (.eq goal_id), categories (.eq user_id).
+-- users is streamed by its primary key, so it does not need this.
+alter table public.goals        replica identity full;
+alter table public.transactions replica identity full;
+alter table public.categories   replica identity full;
+
 -- Insert a default app_config row (update values as needed)
 insert into public.app_config (id, latest_version, is_force_update, store_url)
 values ('version', '1.1.0', false, 'https://play.google.com/store/apps/details?id=com.myfinancial.goal')

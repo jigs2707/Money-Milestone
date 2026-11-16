@@ -144,7 +144,7 @@ class ProgressChartWidget extends StatelessWidget {
                         interval: maxY / 5 > 0 ? maxY / 5 : 1,
                         getTitlesWidget: (value, meta) {
                           return Text(
-                            "\$${value.toInt()}",
+                            "${CurrencyService.instance.symbol}${value.toInt()}",
                             style: TextStyle(
                               color: context.colors.lightGreyColor,
                               fontSize: 10,

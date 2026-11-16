@@ -68,6 +68,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Set<String> _categoryFilters = {};
   String _sortKey = 'default';
 
+  Stream<List<Map<String, dynamic>>> _buildGoalsStream(String userId) =>
+      Supabase.instance.client
+          .from(DatabaseHelper.goalsCollectionName)
+          .stream(primaryKey: ['id'])
+          .eq('user_id', userId);
+
+  /// Re-subscribes the goals stream, which refetches over PostgREST.
+  ///
+  /// A delete is not delivered over realtime when the stream filters on a
+  /// non-key column (the row's old image carries only the primary key), so the
+  /// deleted goal would otherwise stay on screen until the next cold start.
+  /// Refetching on an explicit user action keeps the list correct regardless
+  /// of how the database's replica identity is configured.
+  void _refreshGoalsStream() {
+    if (!mounted) return;
+    setState(() {
+      _goalsStream = _buildGoalsStream(HiveRepository.getUserId ?? "");
+    });
+  }
+
   bool get _hasActiveFilter =>
       _categoryFilters.isNotEmpty || _sortKey != 'default';
 
@@ -76,10 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     String userId = HiveRepository.getUserId ?? "";
 
-    _goalsStream = Supabase.instance.client
-        .from(DatabaseHelper.goalsCollectionName)
-        .stream(primaryKey: ['id'])
-        .eq('user_id', userId);
+    _goalsStream = _buildGoalsStream(userId);
 
     _categoryCubit = CategoryCubit(CategoryRepository(), userId);
 
@@ -617,6 +634,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     context,
                     LanguageStrings.lblGoalDeletedSuccessfully,
                     MessageType.success);
+                _refreshGoalsStream();
               }
             },
             child: BlocBuilder<CurrencyCubit, CurrencyState>(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_milestone/utils/goalCategories.dart';
 
 class GoalCategoryModel {
   final String id;
@@ -27,10 +28,7 @@ class GoalCategoryModel {
       GoalCategoryModel(
         id: json['id'] as String,
         name: json['name'] as String,
-        icon: IconData(
-          json['code_point'] as int,
-          fontFamily: json['font_family'] as String? ?? 'MaterialIcons',
-        ),
+        icon: GoalCategories.iconFromCodePoint(json['code_point'] as int),
         color: Color(json['color_value'] as int),
         isCustom: json['is_custom'] as bool? ?? true,
       );
