@@ -14,6 +14,18 @@ xmlns:tools="http://schemas.android.com/tools"
         android:label="Money Milestone"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Required by flutter_local_notifications (v16+ ships only the
+             permissions): without these, scheduled notifications are never
+             delivered and nothing survives a reboot. -->
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".MainActivity"
             android:exported="true"

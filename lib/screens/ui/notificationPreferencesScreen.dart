@@ -1,6 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:money_milestone/data/model/goalModal.dart';
+import 'package:money_milestone/data/repository/goalRepository.dart';
+import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/widgets/backgroundWidget.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
 import 'package:money_milestone/screens/widgets/notificationPermissionSheet.dart';
@@ -44,7 +47,19 @@ class _NotificationPreferencesScreenState
   }
 
   Future<void> _reschedule() async {
-    await NotificationService.instance.scheduleAll([]);
+    // Needs the real goal list: scheduleAll both schedules and cancels goal
+    // deadline alerts, so an empty list would silently leave stale ones queued.
+    List<GoalModel> goals = [];
+    try {
+      final userId = HiveRepository.getUserId ?? '';
+      if (userId.isNotEmpty) {
+        goals = await GoalRepository().getGoals(userId: userId);
+      }
+    } catch (_) {
+      // Offline: still apply the reminder preferences. Goal deadline alerts
+      // resync from the home screen's goals stream.
+    }
+    await NotificationService.instance.scheduleAll(goals);
   }
 
   Future<void> _pickTime({

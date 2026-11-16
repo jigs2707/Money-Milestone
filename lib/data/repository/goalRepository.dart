@@ -5,6 +5,18 @@ import 'package:money_milestone/utils/databaseHelper.dart';
 class GoalRepository {
   final _db = Supabase.instance.client;
 
+  Future<List<GoalModel>> getGoals({required String userId}) async {
+    try {
+      final rows = await _db
+          .from(DatabaseHelper.goalsCollectionName)
+          .select()
+          .eq('user_id', userId);
+      return rows.map<GoalModel>((row) => GoalModel.fromJson(row)).toList();
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<void> addGoal({required GoalModel goalDetails, required String userId}) async {
     try {
       await _db.from(DatabaseHelper.goalsCollectionName).insert({

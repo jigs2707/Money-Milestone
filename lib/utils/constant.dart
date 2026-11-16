@@ -12,14 +12,9 @@ class Constant {
 
   static const String currencySymbol = "₹";
 
-  static const String dateFormat = "dd/MM/yyyy";
-
   static const int numberOfDecimalPointAfterAmount = 2;
 
   static const int showCalenderTillDays = 30000;
-
-  /// Current app version — bump this on every release.
-  static const String appVersion = "1.1.0";
 
   /// Fallback store URL if Firestore doesn't supply one.
   static const String defaultStoreUrl =

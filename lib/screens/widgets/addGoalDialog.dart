@@ -13,6 +13,8 @@ import 'package:money_milestone/utils/adService.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
 import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/utils/constant.dart';
+import 'package:money_milestone/utils/dateFormatService.dart';
+import 'package:money_milestone/utils/dateFormats.dart';
 import 'package:money_milestone/utils/contextExtensions.dart';
 import 'package:money_milestone/data/model/goalCategoryModel.dart';
 import 'package:money_milestone/utils/goalCategories.dart';
@@ -51,8 +53,8 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
     if (isEditing) {
       _goalNameController.text = widget.goalDetails!.goalName!;
       _goalAmountController.text = widget.goalDetails!.goalAmount!;
-      _goalAchieveDateController.text = intl.DateFormat(Constant.dateFormat)
-          .format(DateTime.parse("${widget.goalDetails!.goalDate!} 00:00:00"));
+      _goalAchieveDateController.text =
+          DateFormatService.instance.formatStored(widget.goalDetails!.goalDate);
       selectedDate = widget.goalDetails!.goalDate;
       _selectedCategoryId = widget.goalDetails!.categoryId;
     }
@@ -81,8 +83,9 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
     ).then((value) {
       if (value != null) {
         _goalAchieveDateController.text =
-            intl.DateFormat(Constant.dateFormat).format(value);
-        selectedDate = intl.DateFormat("yyyy-MM-dd").format(value);
+            DateFormatService.instance.format(value);
+        // Storage format is fixed and independent of the display preference.
+        selectedDate = intl.DateFormat(storageDateFormat).format(value);
         setState(() {});
       }
     });

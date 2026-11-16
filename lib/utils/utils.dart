@@ -97,7 +97,11 @@ class Utils {
                     ),
                   ),
                 ),
-                child,
+                // Flexible bounds the child's height. Without it the Column
+                // hands the child unbounded height, so a scrollable child
+                // grows to its full content height and never scrolls — the
+                // sheet then overflows once the keyboard claims the space.
+                Flexible(child: child),
                 // bottom safe-area pad
                 SizedBox(height: MediaQuery.of(modalCtx).padding.bottom + 8),
               ],

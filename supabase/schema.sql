@@ -10,8 +10,16 @@ create table if not exists public.users (
   currency_code text not null default 'USD',
   current_streak  integer not null default 0,
   longest_streak  integer not null default 0,
-  last_deposit_date text
+  last_deposit_date text,
+  fcm_token       text,                    -- device push token, set on app open
+  fcm_updated_at  timestamptz,
+  date_format     text not null default 'dd/MM/yyyy'  -- display only; storage stays yyyy-MM-dd
 );
+
+-- Existing databases: create table if not exists won't add the columns above.
+alter table public.users add column if not exists fcm_token text;
+alter table public.users add column if not exists fcm_updated_at timestamptz;
+alter table public.users add column if not exists date_format text not null default 'dd/MM/yyyy';
 
 create table if not exists public.goals (
   id                uuid primary key default gen_random_uuid(),

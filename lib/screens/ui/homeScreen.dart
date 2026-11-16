@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:money_milestone/app/routes.dart';
 import 'package:money_milestone/cubits/addGoalCubit.dart';
@@ -24,6 +23,8 @@ import 'package:money_milestone/data/repository/categoryRepository.dart';
 import 'package:money_milestone/utils/adService.dart';
 import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/utils/goalCategories.dart';
+import 'package:money_milestone/utils/dateFormatService.dart';
+import 'package:money_milestone/utils/pushTokenService.dart';
 import 'package:money_milestone/utils/sessionTracker.dart';
 import 'package:money_milestone/screens/widgets/customTweenAnimation.dart';
 import 'package:money_milestone/screens/widgets/customerShimmerWidget.dart';
@@ -84,6 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Log this app open in Firestore + Clarity for retention analytics
     SessionTracker.instance.logAppOpen();
+    // Register this device for admin push announcements
+    PushTokenService.instance.register();
     ClarityService.setScreen('Home');
     ClarityService.logAppOpened();
 
@@ -327,9 +330,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         const Spacer(),
                         _infoChip(
                           icon: Icons.calendar_today_outlined,
-                          label: DateFormat(Constant.dateFormat).format(
-                              DateTime.parse(
-                                  goalDetails.goalDate.toString())),
+                          label: DateFormatService.instance
+                              .formatStored(goalDetails.goalDate),
                         ),
                       ],
                     ),
@@ -639,16 +641,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           List<Map<String, dynamic>> goalsData =
                               snapshot.data!;
 
-                          if (goalsData.isNotEmpty) {
-                            List<GoalModel> parsedGoals = [];
-                            for (var data in goalsData) {
-                              parsedGoals.add(GoalModel.fromJson(data));
-                            }
-                            // Reschedule goal deadline notifications whenever goals update
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              NotificationService.instance.scheduleAll(parsedGoals);
-                            });
+                          List<GoalModel> parsedGoals = [];
+                          for (var data in goalsData) {
+                            parsedGoals.add(GoalModel.fromJson(data));
+                          }
+                          // Reschedule goal deadline notifications whenever goals
+                          // update — including the empty case, so clearing the
+                          // last goal also clears its alerts.
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            NotificationService.instance.scheduleAll(parsedGoals);
+                          });
 
+                          if (goalsData.isNotEmpty) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

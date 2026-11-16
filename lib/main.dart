@@ -9,6 +9,7 @@ import 'package:money_milestone/utils/notificationService.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz_zone;
 import 'package:money_milestone/cubits/currencyCubit.dart';
+import 'package:money_milestone/cubits/dateFormatCubit.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/data/repository/userRepository.dart';
 import 'package:money_milestone/firebase_options.dart';
@@ -80,6 +81,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
             create: (_) => CurrencyCubit(UserRepository())
               ..loadCurrency()),
+        BlocProvider(
+            create: (_) => DateFormatCubit(UserRepository())
+              ..loadDateFormat()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {

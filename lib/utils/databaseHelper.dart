@@ -11,6 +11,9 @@ class DatabaseHelper {
   static const currentStreakKey = "current_streak";
   static const longestStreakKey = "longest_streak";
   static const lastDepositDateKey = "last_deposit_date";
+  static const dateFormatKey = "date_format";
+  static const fcmTokenKey = "fcm_token";
+  static const fcmUpdatedAtKey = "fcm_updated_at";
 
   //
   static const categoriesCollection = "categories";

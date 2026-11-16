@@ -29,6 +29,10 @@ class NotificationService {
   static const int _offsetMilestone90 = 13;
   static const int _offsetCompletion = 20;
 
+  // Push notifications get ids above the per-goal range so they never collide.
+  static const int _pushIdBase = 9100000;
+  int _pushCounter = 0;
+
   static const _motivationMessages = [
     'Small steps every day lead to big savings! 💪',
     'Your future self will thank you for saving today 🌟',
@@ -298,6 +302,17 @@ class NotificationService {
       _details(channelId: 'goal_alerts', channelName: 'Goal Alerts'),
     );
     await cancelGoalDeadlineNotifications(goal.id ?? '');
+  }
+
+  /// Shows a notification immediately. Used for FCM messages that arrive while
+  /// the app is in the foreground, which FCM does not display on its own.
+  Future<void> showNow({required String title, required String body}) async {
+    await _plugin.show(
+      _pushIdBase + (_pushCounter++ % 50),
+      title,
+      body,
+      _details(channelId: 'announcements', channelName: 'Announcements'),
+    );
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────

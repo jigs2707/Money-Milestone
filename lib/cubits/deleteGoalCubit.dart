@@ -3,6 +3,7 @@ import 'package:money_milestone/data/model/goalModal.dart';
 import 'package:money_milestone/data/repository/goalRepository.dart';
 import 'package:money_milestone/utils/analyticsService.dart';
 import 'package:money_milestone/utils/clarityService.dart';
+import 'package:money_milestone/utils/notificationService.dart';
 
 abstract class DeleteGoalState {}
 
@@ -32,6 +33,9 @@ class DeleteGoalCubit extends Cubit<DeleteGoalState> {
       emit(DeleteGoalInProgress());
       //
       await _goalRepository.deleteGoal(goalDetails: goalDetails, userId: userId);
+      // Drop deadline / milestone alerts still queued for this goal
+      await NotificationService.instance
+          .cancelGoalNotifications(goalDetails.id ?? '');
       //
       await AnalyticsService.logGoalDeleted(
         goalName: goalDetails.goalName.toString(),

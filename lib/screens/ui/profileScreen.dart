@@ -6,14 +6,16 @@ import 'package:money_milestone/data/repository/badgeRepository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:money_milestone/app/routes.dart';
 import 'package:money_milestone/cubits/currencyCubit.dart';
+import 'package:money_milestone/cubits/dateFormatCubit.dart';
 import 'package:money_milestone/cubits/themeCubit.dart';
 import 'package:money_milestone/data/repository/authRepository.dart';
 import 'package:money_milestone/data/repository/hiveRepository.dart';
 import 'package:money_milestone/screens/widgets/bannerAdWidget.dart';
 import 'package:money_milestone/screens/widgets/currencyPickerSheet.dart';
+import 'package:money_milestone/screens/widgets/dateFormatPickerSheet.dart';
+import 'package:money_milestone/utils/dateFormatService.dart';
 import 'package:money_milestone/utils/clarityService.dart';
 import 'package:money_milestone/screens/widgets/customCircularProgressIndicator.dart';
 import 'package:money_milestone/screens/widgets/customRoundedButton.dart';
@@ -148,10 +150,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     data[DatabaseHelper.lastDepositDateKey];
                 String lastDepositStr = '—';
                 if (lastDepositRaw != null) {
-                  try {
-                    lastDepositStr = DateFormat('MMM d, yyyy')
-                        .format(DateTime.parse(lastDepositRaw));
-                  } catch (_) {}
+                  final formatted =
+                      DateFormatService.instance.formatStored(lastDepositRaw);
+                  if (formatted.isNotEmpty) lastDepositStr = formatted;
                 }
 
                 return SingleChildScrollView(
@@ -397,6 +398,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ],
                                   ),
                                   onTap: () => showCurrencyPicker(context),
+                                );
+                              },
+                            ),
+                            Divider(
+                                height: 1,
+                                indent: 54,
+                                color: context.colors.lightGreyColor
+                                    .withValues(alpha: 0.12)),
+                            // Date format
+                            BlocBuilder<DateFormatCubit, DateFormatState>(
+                              builder: (ctx, state) {
+                                return _settingRow(
+                                  context,
+                                  icon: Icons.event_note_rounded,
+                                  label: 'Date Format',
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        state.format.label,
+                                        style: TextStyle(
+                                          color: context.colors.accentColor,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(Icons.chevron_right_rounded,
+                                          size: 18,
+                                          color: context.colors.lightGreyColor),
+                                    ],
+                                  ),
+                                  onTap: () => showDateFormatPicker(context),
                                 );
                               },
                             ),

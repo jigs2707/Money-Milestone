@@ -20,12 +20,14 @@ import 'package:url_launcher/url_launcher.dart';
 class AppUpdateScreen extends StatelessWidget {
   final bool isForceUpdate;
   final String latestVersion;
+  final String currentVersion;
   final String storeUrl;
 
   const AppUpdateScreen({
     super.key,
     required this.isForceUpdate,
     required this.latestVersion,
+    required this.currentVersion,
     required this.storeUrl,
   });
 
@@ -35,6 +37,7 @@ class AppUpdateScreen extends StatelessWidget {
       builder: (_) => AppUpdateScreen(
         isForceUpdate: args['isForceUpdate'] as bool,
         latestVersion: args['latestVersion'] as String,
+        currentVersion: args['currentVersion'] as String,
         storeUrl: args['storeUrl'] as String,
       ),
     );
@@ -249,7 +252,7 @@ class AppUpdateScreen extends StatelessWidget {
               _versionColumn(
                 context,
                 label: 'Current',
-                version: Constant.appVersion,
+                version: currentVersion,
                 color: context.colors.lightGreyColor,
               ),
               Container(

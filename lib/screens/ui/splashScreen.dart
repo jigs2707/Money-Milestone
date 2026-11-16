@@ -8,6 +8,7 @@ import 'package:money_milestone/utils/app_colors_extension.dart';
 import 'package:money_milestone/utils/constant.dart';
 import 'package:money_milestone/utils/contextExtensions.dart';
 import 'package:money_milestone/utils/databaseHelper.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SplashScreen extends StatefulWidget {
   SplashScreen({final Key? key}) : super(key: key);
@@ -82,8 +83,11 @@ class _SplashScreenState extends State<SplashScreen>
   // ── Version check logic ─────────────────────────────────────────────────
   Future<void> _checkVersionAndNavigate() async {
     if (!mounted) return;
-return;
     try {
+      // The installed version, built from pubspec's `version:` field. Read at
+      // runtime so there is no constant to forget to bump on release.
+      final currentVersion = (await PackageInfo.fromPlatform()).version;
+
       final doc = await Supabase.instance.client
           .from(DatabaseHelper.appConfigCollectionName)
           .select()
@@ -94,19 +98,20 @@ return;
       if (doc != null) {
         final data = doc;
         final String latestVersion =
-            data[DatabaseHelper.latestVersionKey] ?? Constant.appVersion;
+            data[DatabaseHelper.latestVersionKey] ?? currentVersion;
         final bool isForceUpdate =
             data[DatabaseHelper.isForceUpdateKey] ?? false;
         final String storeUrl =
             data[DatabaseHelper.storeUrlKey] ?? Constant.defaultStoreUrl;
 
-        if (_isUpdateAvailable(Constant.appVersion, latestVersion)) {
+        if (_isUpdateAvailable(currentVersion, latestVersion)) {
           if (!mounted) return;
           context.pushReplacementNamed(
             Routes.appUpdateScreen,
             arguments: {
               'isForceUpdate': isForceUpdate,
               'latestVersion': latestVersion,
+              'currentVersion': currentVersion,
               'storeUrl': storeUrl,
             },
           );

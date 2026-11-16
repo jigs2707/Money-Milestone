@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:money_milestone/utils/databaseHelper.dart';
+import 'package:money_milestone/utils/dateFormats.dart';
 
 class UserRepository {
   final _db = Supabase.instance.client;
@@ -10,6 +11,18 @@ class UserRepository {
         {'id': userId, DatabaseHelper.userNameKey: name},
         onConflict: 'id',
       );
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<void> saveFcmToken({required String userId, required String token}) async {
+    try {
+      await _db.from(DatabaseHelper.usersCollectionName).upsert({
+        'id': userId,
+        DatabaseHelper.fcmTokenKey: token,
+        DatabaseHelper.fcmUpdatedAtKey: DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'id');
     } catch (e) {
       throw e.toString();
     }
@@ -45,6 +58,31 @@ class UserRepository {
     try {
       await _db.from(DatabaseHelper.usersCollectionName).upsert(
         {'id': userId, DatabaseHelper.currencyKey: code},
+        onConflict: 'id',
+      );
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  Future<String> getDateFormat({required String userId}) async {
+    try {
+      final data = await _db
+          .from(DatabaseHelper.usersCollectionName)
+          .select(DatabaseHelper.dateFormatKey)
+          .eq('id', userId)
+          .maybeSingle();
+      return data?[DatabaseHelper.dateFormatKey] ?? defaultDateFormat.pattern;
+    } catch (_) {
+      return defaultDateFormat.pattern;
+    }
+  }
+
+  Future<void> saveDateFormat(
+      {required String userId, required String pattern}) async {
+    try {
+      await _db.from(DatabaseHelper.usersCollectionName).upsert(
+        {'id': userId, DatabaseHelper.dateFormatKey: pattern},
         onConflict: 'id',
       );
     } catch (e) {

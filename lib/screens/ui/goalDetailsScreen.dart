@@ -4,7 +4,6 @@ import 'package:money_milestone/screens/widgets/backgroundWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:confetti/confetti.dart';
 import 'package:money_milestone/cubits/addOrWithdrawMoneyCubit.dart';
 import 'package:money_milestone/cubits/updateGoalCubit.dart';
@@ -21,6 +20,7 @@ import 'package:money_milestone/screens/widgets/customTweenAnimation.dart';
 import 'package:money_milestone/screens/widgets/customerShimmerWidget.dart';
 import 'package:money_milestone/screens/widgets/fadeSlideIn.dart';
 import 'package:money_milestone/utils/app_colors_extension.dart';
+import 'package:money_milestone/utils/dateFormatService.dart';
 import 'package:money_milestone/utils/constant.dart';
 import 'package:money_milestone/utils/databaseHelper.dart';
 import 'package:money_milestone/utils/languageString.dart';
@@ -105,7 +105,7 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
     } else {
       value = '$days ${LanguageStrings.lblDays}';
     }
-    return "$value ${LanguageStrings.lblRemaining}";
+    return value;
   }
 
   // ── Progress ring card ────────────────────────────────────────────────────
@@ -490,12 +490,12 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
         statusIcon = Icons.check_circle_rounded;
         dateLabel = "Achieved on target date";
       } else {
-        // Completed AFTER target date
-        final daysLate = daysLeft.abs();
-        chipLabel = "${convertDaysToMonths(days: daysLate)} late";
+        // Completed AFTER target date. The goal is met, so no "late" chip —
+        // there is nothing actionable left to tell the user about the delay.
+        chipLabel = "";
         chipColor = context.colors.lightGreyColor;
         statusIcon = Icons.check_rounded;
-        dateLabel = "Achieved (past target)";
+        dateLabel = "Achieved";
       }
     } else {
       // Goal still in progress
@@ -506,7 +506,7 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
         statusIcon = Icons.warning_amber_rounded;
         dateLabel = LanguageStrings.lblGoalAchievementDate;
       } else if (timeLabel.isNotEmpty) {
-        chipLabel = timeLabel;
+        chipLabel = "$timeLabel ${LanguageStrings.lblRemaining}";
         chipColor = context.colors.goldColor;
         statusIcon = Icons.calendar_month_rounded;
         dateLabel = LanguageStrings.lblGoalAchievementDate;
@@ -562,7 +562,8 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      widget.goalDetails.goalDate.toString(),
+                      DateFormatService.instance
+                          .formatStored(widget.goalDetails.goalDate),
                       style: TextStyle(
                         color: context.colors.blackColors,
                         fontWeight: FontWeight.w700,
@@ -572,24 +573,34 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                   ],
                 ),
               ),
-              if (chipLabel.isNotEmpty)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: chipColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: chipColor.withValues(alpha: 0.3)),
-                  ),
-                  child: Text(
-                    chipLabel,
-                    style: TextStyle(
-                      color: chipColor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+              if (chipLabel.isNotEmpty) ...[
+                const SizedBox(width: 10),
+                // Flexible, not a bare Container: an inflexible Row child is
+                // laid out at its full intrinsic width first, so a long label
+                // left the Expanded column above a few pixels wide and its
+                // text wrapped one character per line.
+                Flexible(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: chipColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border:
+                          Border.all(color: chipColor.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      chipLabel,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: chipColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
+              ],
             ],
           ),
         ),
@@ -793,8 +804,8 @@ class _GoalDetailsScreenState extends State<GoalDetailsScreen>
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        DateFormat(Constant.dateFormat).format(DateTime.parse(
-                            transactionDetails.transactionDate.toString())),
+                        DateFormatService.instance
+                            .formatStored(transactionDetails.transactionDate),
                         style: TextStyle(
                           fontSize: 11,
                           color: context.colors.lightGreyColor,
