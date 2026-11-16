@@ -13,7 +13,8 @@ xmlns:tools="http://schemas.android.com/tools"
     <application
         android:label="Money Milestone"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round">
         <!-- Required by flutter_local_notifications (v16+ ships only the
              permissions): without these, scheduled notifications are never
              delivered and nothing survives a reboot. -->

@@ -1,0 +1,79 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1024px;height:500px;overflow:hidden}
+  body{
+    font-family:'DM Sans','Helvetica Neue',Arial,sans-serif;
+    background:#0B0F1A; position:relative;
+  }
+  .stage{position:absolute;inset:0;overflow:hidden;
+    background:
+      radial-gradient(900px 520px at 88% 112%, rgba(245,166,35,.20), transparent 62%),
+      radial-gradient(760px 520px at 12% -14%, rgba(108,71,255,.55), transparent 64%),
+      linear-gradient(118deg,#191149 0%,#120E33 42%,#0B0F1A 100%);
+  }
+  /* faint grid */
+  .grid{position:absolute;inset:0;opacity:.055;
+    background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);
+    background-size:48px 48px;
+    -webkit-mask-image:radial-gradient(70% 70% at 40% 40%,#000 30%,transparent 100%);}
+  .wrap{position:absolute;inset:0;display:flex;align-items:center;padding:0 68px;gap:40px}
+  .left{flex:1;min-width:0}
+  .kicker{display:inline-block;font-size:14px;font-weight:700;letter-spacing:.17em;
+    color:#FFC76B;text-transform:uppercase;padding:7px 14px;border-radius:999px;
+    background:rgba(245,166,35,.11);border:1px solid rgba(245,166,35,.32);margin-bottom:20px}
+  h1{font-size:64px;line-height:1.02;font-weight:800;letter-spacing:-.035em;color:#fff}
+  h1 .accent{background:linear-gradient(97deg,#FFD79A,#F5A623);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{margin-top:15px;font-size:23px;line-height:1.38;color:#AFB6DC;font-weight:500;max-width:500px}
+  .chips{margin-top:26px;display:flex;gap:9px;flex-wrap:wrap}
+  .chip{font-size:14.5px;font-weight:700;color:#DADFFA;padding:9px 15px;border-radius:11px;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13)}
+  .right{width:336px;height:336px;position:relative;flex:none}
+  .glow{position:absolute;inset:-54px;border-radius:50%;
+    background:radial-gradient(circle,rgba(108,71,255,.45),transparent 66%);filter:blur(10px)}
+  svg{position:relative;display:block}
+  .pct{font-size:66px;font-weight:800;fill:#fff;letter-spacing:-.03em}
+  .pctlbl{font-size:15.5px;font-weight:700;fill:#9AA2CC;letter-spacing:.11em}
+  .goal{font-size:17px;font-weight:700;fill:#FFC76B}
+</style></head>
+<body>
+<div class="stage"><div class="grid"></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="kicker">Savings Goal Tracker</div>
+      <h1>Money<br>Mile<span class="accent">stone</span></h1>
+      <div class="sub">Set a goal. Log every deposit.<br>Watch it fill.</div>
+      <div class="chips">
+        <div class="chip">🔥 Daily streaks</div>
+        <div class="chip">🔔 Smart reminders</div>
+        <div class="chip">🏆 16 badges</div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="glow"></div>
+      <svg width="330" height="330" viewBox="0 0 330 330">
+        <defs>
+          <linearGradient id="ring" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#6C47FF"/><stop offset="55%" stop-color="#A98BFF"/>
+            <stop offset="100%" stop-color="#F5A623"/>
+          </linearGradient>
+          <filter id="sh" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#6C47FF" flood-opacity=".55"/>
+          </filter>
+        </defs>
+        <circle cx="165" cy="165" r="128" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.10)" stroke-width="1.5"/>
+        <circle cx="165" cy="165" r="112" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="22"/>
+        <circle cx="165" cy="165" r="112" fill="none" stroke="url(#ring)" stroke-width="22"
+                stroke-linecap="round" filter="url(#sh)"
+                stroke-dasharray="703.7" stroke-dashoffset="225.2"
+                transform="rotate(-90 165 165)"/>
+        <text x="165" y="156" text-anchor="middle" class="pct">68%</text>
+        <text x="165" y="182" text-anchor="middle" class="pctlbl">SAVED</text>
+        <text x="165" y="212" text-anchor="middle" class="goal">New Car Fund</text>
+      </svg>
+    </div>
+  </div>
+</div>
+</body></html>

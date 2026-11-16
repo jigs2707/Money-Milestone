@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700;9..40,800&display=swap" rel="stylesheet">
+<style>
+ *{margin:0;padding:0;box-sizing:border-box}
+ html,body{width:512px;height:512px;overflow:hidden}
+ .icon{width:512px;height:512px;position:relative;
+   background:
+     radial-gradient(420px 380px at 24% 10%, rgba(169,139,255,.60), transparent 62%),
+     radial-gradient(400px 400px at 86% 94%, rgba(245,166,35,.34), transparent 60%),
+     linear-gradient(140deg,#7C57FF 0%,#6C47FF 44%,#4A2ED0 100%);
+   display:flex;align-items:center;justify-content:center}
+</style></head><body>
+<div class="icon">
+ <svg width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+   <linearGradient id="arc" x1="0" y1="1" x2="1" y2="0">
+     <stop offset="0" stop-color="#FFFFFF"/><stop offset="52%" stop-color="#FFE3B0"/>
+     <stop offset="100%" stop-color="#F5A623"/>
+   </linearGradient>
+   <filter id="dz" x="-50%" y="-50%" width="200%" height="200%">
+     <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#2A1580" flood-opacity=".40"/>
+   </filter>
+  </defs>
+  <!-- track -->
+  <circle cx="256" cy="256" r="150" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="44"/>
+  <!-- progress ~72% -->
+  <circle cx="256" cy="256" r="150" fill="none" stroke="url(#arc)" stroke-width="44"
+          stroke-linecap="round" stroke-dasharray="942.5" stroke-dashoffset="264"
+          transform="rotate(-90 256 256)" filter="url(#dz)"/>
+  <!-- coin -->
+  <circle cx="256" cy="256" r="88" fill="#FFFFFF" opacity=".97"/>
+  <circle cx="256" cy="256" r="88" fill="none" stroke="#F5A623" stroke-width="7" opacity=".55"/>
+  <!-- upward growth chevron -->
+  <path d="M212 286 L247 243 L277 272 L322 214"
+        fill="none" stroke="#6C47FF" stroke-width="26"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M300 214 H322 V236" fill="none" stroke="#6C47FF" stroke-width="26"
+        stroke-linecap="round" stroke-linejoin="round"/>
+ </svg>
+</div></body></html>

@@ -1,0 +1,11 @@
+Reminders now actually arrive. Daily, streak, weekly and goal deadline alerts were never firing on Android — that is fixed, and they survive a restart.
+
+Also in this release:
+• Fixed the app getting stuck on the splash screen
+• New: choose your date format in Profile
+• A brand new app icon
+• Deleted goals now disappear straight away
+• The savings chart uses your currency, not $
+• Add Goal no longer hides behind the keyboard
+
+Thanks for saving with us.
